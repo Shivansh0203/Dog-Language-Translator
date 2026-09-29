@@ -1,0 +1,1228 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PawBot - PawAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --ink: #332622;
+            --deep: #181615;
+            --paper: #f8f6f3;
+            --warm: #dabf89;
+            --peach: #edc3aa;
+            --peach-deep: #a96849;
+            --line: #d8c8bb;
+            --muted: #6f625c;
+
+            /* Home dark theme */
+            --bg: #181817;
+            --text: #fffaf6;
+            --panel: rgba(31, 26, 24, .92);
+            --field: #171412;
+            --green: #2ee98f;
+            --danger: #e05252;
+            --shadow: 0 28px 80px rgba(0, 0, 0, .42);
+            --pink-glow: 0 14px 40px rgba(169, 104, 73, .20);
+            --premium-transition: all .28s cubic-bezier(.2, .8, .2, 1);
+            --font: "Open Sans", Arial, sans-serif;
+            --heading-font: "Poppins", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .navbar,
+        .brand,
+        .chat-header,
+        .pet-card,
+        .composer,
+        .tools {
+            display: flex;
+            align-items: center;
+        }
+
+        .accent {
+            color: var(--pink);
+        }
+
+        h1, h2, h3, h4, h5, h6 { 
+            font-family: var(--heading-font); 
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text);
+            background: radial-gradient(circle at 30% 40%, #523a30 0, #302522 37%, #181817 73%);
+            font-family: var(--font);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button {
+            border: 0;
+            cursor: pointer;
+        }
+
+        .page {
+            width: min(1120px, calc(100% - 48px));
+            height: 100vh;
+            margin: 0 auto;
+            padding: 22px 0;
+            overflow: hidden;
+        }
+
+        .navbar {
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 16px;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            color: var(--pink);
+            background: transparent;
+            border: 0;
+            border-radius: 50%;
+            font-size: 14px;
+            text-decoration: none;
+            transition: color .25s ease, transform .25s ease;
+        }
+
+        .back-arrow:hover {
+            color: var(--text);
+            background: transparent;
+            transform: translateX(-2px);
+        }
+
+        .brand-logo {
+            width: 58px;
+            height: 50px;
+            object-fit: contain;
+            display: block;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            filter: none;
+            animation: none;
+            transition: none;
+        }
+
+        .brand-logo:hover {
+            transform: none;
+            background: transparent;
+            box-shadow: none;
+            filter: none;
+        }
+
+        .bot-mark {
+            animation: logoPulse 3.8s ease-in-out infinite;
+            transition: transform .22s ease, filter .22s ease;
+            display: grid;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            place-items: center;
+            flex: 0 0 auto;
+            color: #fff;
+            background: linear-gradient(135deg, #d8a889, #945c43);
+            box-shadow: 0 8px 20px rgba(0,0,0,.18);
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .ghost-btn,
+        .icon-btn,
+        .send-btn,
+        .quick-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 46px;
+            border-radius: 25px;
+            font-weight: 500;
+        }
+
+        .ghost-btn,
+        .icon-btn,
+        .quick-btn {
+            color: #dfc6b8;
+            background: rgba(255,255,255,.025);
+            transition: var(--premium-transition);
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-3px) scale(1.01);
+            border-color: var(--pink);
+            box-shadow: 0 10px 20px -5px var(--pink-glow);
+            background: rgba(169, 104, 73, 0.14);
+            color: var(--text);
+        }
+
+        .logout-btn {
+            border-color: rgba(224,82,82,.38) !important;
+            color: #e05252 !important;
+            background: rgba(224,82,82,.07) !important;
+        }
+
+        .logout-btn:hover {
+            background: #da1e1e !important;
+            color: #fff !important;
+            box-shadow: 0 8px 20px rgba(224,82,82,.20) !important;
+            transform: translateY(-2px);
+            border-color: #d94b4b !important;
+        }
+
+        .ghost-btn {
+            padding: 0 20px;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+        }
+
+        .audio-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(216, 200, 187, .36);
+            background: rgba(255, 255, 255, .025);
+            color: #cbb8ae;
+            transition: all .3s ease;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .audio-btn:hover {
+            background: rgba(230, 183, 156, .08);
+            transform: translateY(-1px);
+            border-color: rgba(230, 183, 156, .65);
+        }
+
+        /* PawBot is speaking */
+        .audio-btn.is-speaking {
+            background: var(--pink) !important;
+            color: #5a3528 !important;
+            border-color: var(--pink);
+            animation: speakingButton 1.8s ease-in-out infinite;
+        }
+
+        .audio-btn.is-speaking::before,
+        .audio-btn.is-speaking::after {
+            content: "";
+            position: absolute;
+            inset: -4px;
+            border: 1px solid rgba(237, 195, 170, .35);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: speakingRing 2s ease-out infinite;
+        }
+
+        .audio-btn.is-speaking::after {
+            animation-delay: 1s;
+        }
+
+        @keyframes speakingButton {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.04);
+            }
+        }
+
+        @keyframes speakingRing {
+            0% {
+                transform: scale(.9);
+                opacity: .65;
+            }
+            100% {
+                transform: scale(1.55);
+                opacity: 0;
+            }
+        }
+
+        /* Microphone */
+        #voiceButton {
+            width: 42px;
+            height: 42px;
+            min-height: 42px;
+            border-radius: 11px;
+            background: transparent;
+            border: 0;
+            color: var(--muted);
+            transition: var(--premium-transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        #voiceButton:hover {
+            color: var(--pink);
+            background: rgba(230, 183, 156, .09);
+            transform: none;
+        }
+
+        /* Microphone is listening */
+        #voiceButton.is-listening {
+            background: var(--pink) !important;
+            color: #fff !important;
+            border: none;
+            animation: micBreath 1.5s ease-in-out infinite;
+        }
+
+        #voiceButton.is-listening::before {
+            content: "";
+            position: absolute;
+            inset: -5px;
+            border: 1px solid rgba(237, 195, 170, .4);
+            border-radius: 14px;
+            pointer-events: none;
+            animation: micRing 1.5s ease-out infinite;
+        }
+
+        @keyframes micBreath {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.03);
+            }
+        }
+
+        @keyframes micRing {
+            0% {
+                transform: scale(.95);
+                opacity: .65;
+            }
+            100% {
+                transform: scale(1.25);
+                opacity: 0;
+            }
+        }
+
+        .layout {
+            display: grid;
+            height: calc(100% - 64px);
+            grid-template-columns: minmax(250px, .7fr) minmax(450px, 1.3fr);
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .side-panel,
+        .chat-shell {
+            border: 1px solid rgba(216,200,187,.48);
+            border-radius: 22px;
+            animation: riseIn .72s ease both;
+            overflow: hidden;
+        }
+
+        .side-panel {
+            padding: 30px;
+        }
+
+        h1, h2, h3, p {
+            margin-top: 0;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+            font-size: clamp(34px, 5vw, 48px);
+            line-height: 1.08;
+            letter-spacing: -1px;
+        }
+
+        .panel-copy {
+            margin-bottom: 22px;
+            line-height: 1.7;
+            max-width: 430px;
+            color: #aa9d96;
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 32px;
+            padding: 0 12px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 20px;
+            color: var(--pink);
+            width: fit-content;
+        }
+
+        .pet-card {
+            gap: 14px;
+            padding: 16px;
+            border: 1px solid rgba(216,200,187,.34);
+            border-radius: 16px;
+            background: rgba(255,255,255,.025);
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 58px;
+            height: 58px;
+            border: 2px solid rgba(230,183,156,.30);
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--bg);
+        }
+
+        .pet-card strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 17px;
+        }
+
+        .quick-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .quick-btn {
+            justify-content: flex-start;
+            min-height: 40px;
+            padding: 0 14px;
+            text-align: left;
+        }
+
+        .chat-shell {
+            display: grid;
+            height: 100%;
+            min-height: 0;
+            overflow: hidden;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        .chat-header {
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(24,22,21,.78);
+            min-height: 76px;
+            backdrop-filter: blur(16px);
+        }
+
+        .chat-title h2 {
+            margin-bottom: 4px;
+            font-size: 21px;
+            letter-spacing: -.35px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 0 4px rgba(46,233,143,.09);
+        }
+
+        .messages {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding: 24px 26px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            min-height: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,.012), transparent 18%);
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 10px;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: var(--pink);
+        }
+
+        .message {
+            display: flex;
+            gap: 9px;
+            max-width: 78%;
+            animation: messagePop .32s ease both;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+        }
+
+        .bubble {
+            padding: 12px 15px;
+            border-radius: 16px;
+            line-height: 1.6;
+            font-size: 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.10);
+        }
+
+        .message.user .bubble {
+            border-bottom-right-radius: 6px;
+            color: var(--paper);
+            background: linear-gradient(135deg, #9a6047, #b97457);
+            box-shadow: 0 8px 20px rgba(90,49,35,.22);
+        }
+
+        .message.bot .bubble {
+            border: 1px solid rgba(216,200,187,.34);
+            border-bottom-left-radius: 6px;
+            color: var(--text);
+            background: rgba(255,255,255,.035);
+        }
+
+        .bot-mark svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+
+        .bubble-meta {
+            display: block;
+            margin-top: 6px;
+            text-align: right;
+            color: rgba(255, 255, 255, .65);
+            font-size: 10px;
+            padding-left: 0;
+            opacity: .65;
+        }
+
+        .message.bot .bubble-meta {
+            color: var(--muted);
+        }
+
+        .composer-area {
+            padding: 14px 18px 18px;
+            border-top: 1px solid var(--line);
+            background: rgba(24,22,21,.86);
+            backdrop-filter: blur(16px);
+        }
+
+        .suggestions {
+            display: flex;
+            gap: 7px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            padding: 3px 1px 7px;
+        }
+
+        .composer {
+            gap: 8px;
+            padding: 5px;
+            border: 1px solid rgba(216,200,187,.45);
+            border-radius: 16px;
+            background: rgba(24,22,21,.58);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+        }
+
+        .chat-input {
+            width: 100%;
+            min-height: 42px;
+            padding: 0 8px;
+            border: 0;
+            border-radius: 14px;
+            outline: none;
+            color: var(--text);
+            background: transparent;
+            font-size: 14px;
+        }
+
+        .chat-input::placeholder {
+            color: var(--muted);
+            opacity: 0.5;
+        }
+
+        .chat-input:focus {
+            border-color: var(--pink);
+            background: transparent;
+            box-shadow: none;
+            border: 0;
+        }
+
+        .send-btn {
+            width: 42px;
+            min-height: 42px;
+            flex: 0 0 auto;
+            color: #fff;
+            background: linear-gradient(135deg, #452c1d, #a96849);
+            box-shadow: none;
+            font-size: 15px;
+            border: none;
+            border-radius: 11px;
+            transition: var(--premium-transition);
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(169,104,73,.22);
+            filter: brightness(1.04);
+        }
+
+        .send-btn:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        .ghost-btn:hover,
+        .icon-btn:hover,
+        .send-btn:hover,
+        .quick-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(169, 104, 73, 0.18);
+            background: rgba(169, 104, 73, 0.10);
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes messagePop {
+            from { opacity: 0; transform: translateY(10px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { box-shadow: var(--pink-glow); }
+            50% { box-shadow: 0 18px 54px rgba(169, 104, 73, .32), 0 0 0 8px rgba(169, 104, 73, .08); }
+        }
+
+        .tools {
+            gap: 8px;
+        }
+
+        .tools .ghost-btn {
+            margin-left: 0 !important;
+        }
+
+        .ghost-btn:hover,
+        .icon-btn:hover,
+        .quick-btn:hover {
+            border-color: rgba(230,183,156,.72);
+            background: rgba(230,183,156,.09);
+            color: var(--paper);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(0,0,0,.16);
+        }
+
+        .side-panel h1 {
+            font-size: clamp(30px, 3vw, 40px);
+            letter-spacing: -1.2px;
+            margin-top: 18px;
+        }
+
+        .pet-card p {
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+
+        .quick-list .quick-btn {
+            min-height: 44px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .suggestions .quick-btn {
+            min-height: 34px;
+            padding: 0 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 900px) {
+            .brand {
+                width: 58px;
+                height: 48px;
+            }
+
+            body {
+                height: auto;
+                min-height: 100vh;
+                overflow: auto;
+            }
+
+            .page {
+                width: min(calc(100% - 28px), 680px);
+                height: auto;
+                min-height: 100vh;
+                padding: 18px 0 24px;
+                overflow: visible;
+            }
+
+            .navbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .layout {
+                height: auto;
+                grid-template-columns: 1fr;
+            }
+
+            .chat-shell {
+                height: 620px;
+                border-radius: 18px;
+            }
+
+            .message {
+                max-width: 96%;
+            }
+
+            .side-panel {
+                border-radius: 18px;
+            }
+
+            .messages {
+                padding: 20px 16px;
+            }
+        }
+
+        strong,
+        b,
+        h1,
+        h2,
+        h3,
+        .pill,
+        .quick-btn,
+        .ghost-btn,
+        .status {
+            font-family: var(--heading-font);
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: 700;
+        }
+
+        .pill,
+        .quick-btn,
+        .ghost-btn,
+        .status,
+        strong,
+        b {
+            font-weight: 700;
+        }
+    </style>
+    <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+    <div class="page">
+        <header class="navbar">
+            <div class="nav-left">
+                <a class="back-arrow" href="#" onclick="history.back(); return false;" aria-label="Go back" title="Go back">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
+                <a class="brand" href="home.html" aria-label="PawAI landing page">
+                    <img class="brand-logo" src="../assets/web-logo-2.png" alt="PawAI">
+                </a>
+            </div>
+
+            <div class="tools">
+                <span class="pill online-status" style="font-size: 11px;"><span class="status-dot"></span> Online</span>
+                <a class="ghost-btn" href="home.html" style="margin-left: 10px;" title="Home">
+                    <i class="fa-solid fa-house"></i>
+                </a>
+                <a class="ghost-btn logout-btn" href="landing-page.html" style="margin-left: 10px;" title="Logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </a>
+            </div>
+        </header>
+
+        <main class="layout">
+            <aside class="side-panel" aria-labelledby="panelTitle">
+                <span class="pill">AI pet assistant</span>
+                <h1 id="panelTitle">Ask <span class="accent">PawBot</span></h1>
+                <p class="muted panel-copy">Talk or type about Bruno. PawBot can explain behavior, food concerns, moods, and when it may be time to contact a vet.</p>
+
+                <section class="pet-card" aria-label="Current pet">
+                    <img class="avatar" src="../assets/img2.jpg" alt="Bruno relaxing at home">
+                    <div>
+                        <strong>Bruno</strong>
+                        <p class="muted">Golden Retriever, 2 years, male</p>
+                    </div>
+                </section>
+
+                <div class="quick-list" aria-label="Quick questions">
+                    <button class="quick-btn" type="button" data-prompt="Why is my dog barking continuously?">Why is my dog barking?</button>
+                    <button class="quick-btn" type="button" data-prompt="What food is best for my dog's breed?">Food suggestion</button>
+                    <button class="quick-btn" type="button" data-prompt="Is this behavior normal for my dog?">Is this normal?</button>
+                    <button class="quick-btn" type="button" data-prompt="When should I contact a vet?">When should I see a vet?</button>
+                </div>
+            </aside>
+
+            <section class="chat-shell" aria-labelledby="chatTitle">
+                <header class="chat-header">
+                    <div class="chat-title">
+                        <h2 id="chatTitle">PawBot Chat</h2>
+                        <span class="status"><span class="status-dot"></span> Voice and text ready</span>
+                    </div>
+                    <div class="audio-controls">
+                        <button class="audio-btn" id="speakLastButton" title="Play/Pause">
+                            <i class="fa-solid fa-play" id="playIcon"></i>
+                        </button>
+                        <button class="audio-btn" id="stopSpeechButton" title="Stop/Mute">
+                            <i class="fa-solid fa-stop"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="messages" id="messages" aria-live="polite">
+                    <article class="message bot">
+                        <span class="bot-mark" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M8.1 10.4c-1.4.2-2.6-1.1-2.8-2.9C5.1 5.7 6 4.1 7.3 3.9c1.4-.2 2.6 1.1 2.8 2.9.2 1.8-.7 3.4-2 3.6Zm7.8 0c-1.3-.2-2.2-1.8-2-3.6.2-1.8 1.4-3.1 2.8-2.9 1.3.2 2.2 1.8 2 3.6-.2 1.8-1.4 3.1-2.8 2.9ZM4.4 14.2c-1.1.4-2.4-.4-2.9-1.8-.5-1.4-.1-2.8 1-3.2 1.1-.4 2.4.4 2.9 1.8.5 1.4.1 2.8-1 3.2Zm15.2 0c-1.1-.4-1.5-1.8-1-3.2.5-1.4 1.8-2.2 2.9-1.8 1.1.4 1.5 1.8 1 3.2-.5 1.4-1.8 2.2-2.9 1.8Zm-7.6 6.2c-3.5 0-6.4-1.3-6.4-3.8 0-1.5 1.2-2.2 2.2-3 .8-.6 1.4-1.3 2.1-2.2.6-.8 1.2-1.3 2.1-1.3s1.5.5 2.1 1.3c.7.9 1.3 1.6 2.1 2.2 1 .8 2.2 1.5 2.2 3 0 2.5-2.9 3.8-6.4 3.8Z"/>
+                            </svg>
+                        </span>
+                        <div class="bubble">
+                            Hi, I am PawBot. Tell me what Bruno is doing, or use the mic button and speak your question.
+                            <span class="bubble-meta">Just now</span>
+                        </div>
+                    </article>
+                </div>
+
+                <form class="composer-area" id="chatForm">
+                    <div class="suggestions" aria-label="Suggested prompts">
+                        <button class="quick-btn" type="button" data-prompt="Bruno is hiding under the bed. What does it mean?">Hiding</button>
+                        <button class="quick-btn" type="button" data-prompt="Bruno is wagging his tail and relaxing. Is he happy?">Tail wagging</button>
+                        <button class="quick-btn" type="button" data-prompt="Bruno is not eating today. What should I check first?">Not eating</button>
+                    </div>
+
+                    <div class="composer">
+                        <button class="icon-btn" id="voiceButton" type="button" aria-label="Start voice input">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <input class="chat-input" id="chatInput" type="text" placeholder="Ask anything about your pet..." autocomplete="off">
+                        <button class="send-btn" type="submit" aria-label="Send message">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="theme.js"></script>
+    <script>
+        // ================================================================
+        // PAWAI CHATBOT — real multi-turn Gemini conversation
+        // ================================================================
+        // Flow:
+        //   1. On load, read pawai-chat-context from sessionStorage
+        //      (written by result.html's saveContextForChatbot()).
+        //   2. POST /api/chat/session  → get session_id  (server-side,
+        //      Gemini key never leaves the backend).
+        //   3. Every user message: POST /api/chat/message {session_id, message}
+        //      → PAWAI reply text.
+        //   4. Render both turns in the existing message bubble UI.
+        // ================================================================
+
+        const chatForm      = document.querySelector("#chatForm");
+        const chatInput     = document.querySelector("#chatInput");
+        const messages      = document.querySelector("#messages");
+        const voiceButton   = document.querySelector("#voiceButton");
+        const speakLastButton = document.querySelector("#speakLastButton");
+        const stopSpeechButton = document.querySelector("#stopSpeechButton");
+        const playIcon      = document.querySelector("#playIcon");
+        const quickButtons  = document.querySelectorAll("[data-prompt]");
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        let recognition;
+        let lastBotReply  = "";
+        let chatSessionId = null;   // set once /api/chat/session responds
+        let isSending     = false;  // prevent double-sends
+
+        function getTime() {
+            return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        }
+
+        function pawSvg() {
+            return `
+                <span class="bot-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M8.1 10.4c-1.4.2-2.6-1.1-2.8-2.9C5.1 5.7 6 4.1 7.3 3.9c1.4-.2 2.6 1.1 2.8 2.9.2 1.8-.7 3.4-2 3.6Zm7.8 0c-1.3-.2-2.2-1.8-2-3.6.2-1.8 1.4-3.1 2.8-2.9 1.3.2 2.2 1.8 2 3.6-.2 1.8-1.4 3.1-2.8 2.9ZM4.4 14.2c-1.1.4-2.4-.4-2.9-1.8-.5-1.4-.1-2.8 1-3.2 1.1-.4 2.4.4 2.9 1.8.5 1.4.1 2.8-1 3.2Zm15.2 0c-1.1-.4-1.5-1.8-1-3.2.5-1.4 1.8-2.2 2.9-1.8 1.1.4 1.5 1.8 1 3.2-.5 1.4-1.8 2.2-2.9 1.8Zm-7.6 6.2c-3.5 0-6.4-1.3-6.4-3.8 0-1.5 1.2-2.2 2.2-3 .8-.6 1.4-1.3 2.1-2.2.6-.8 1.2-1.3 2.1-1.3s1.5.5 2.1 1.3c.7.9 1.3 1.6 2.1 2.2 1 .8 2.2 1.5 2.2 3 0 2.5-2.9 3.8-6.4 3.8Z"/>
+                    </svg>
+                </span>
+            `;
+        }
+
+        // ----------------------------------------------------------------
+        // Message rendering
+        // ----------------------------------------------------------------
+        function addMessage(type, text) {
+            const article = document.createElement("article");
+            article.className = `message ${type}`;
+
+            const bubble = document.createElement("div");
+            bubble.className = "bubble";
+            bubble.textContent = text;
+
+            const meta = document.createElement("span");
+            meta.className = "bubble-meta";
+            meta.textContent = getTime();
+            bubble.appendChild(meta);
+
+            if (type === "bot") {
+                article.innerHTML = pawSvg();
+            }
+
+            article.appendChild(bubble);
+            messages.appendChild(article);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Typing indicator — shows three animated dots while PAWAI is thinking
+        function showTyping() {
+            const article = document.createElement("article");
+            article.className = "message bot";
+            article.id = "typing-indicator";
+            article.innerHTML = pawSvg() + `
+                <div class="bubble" style="padding:14px 18px; letter-spacing:.12em; color:var(--muted);">
+                    <span style="animation:typingDot 1.2s ease-in-out infinite">•</span>
+                    <span style="animation:typingDot 1.2s ease-in-out .24s infinite">•</span>
+                    <span style="animation:typingDot 1.2s ease-in-out .48s infinite">•</span>
+                </div>`;
+            messages.appendChild(article);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function hideTyping() {
+            const el = document.getElementById("typing-indicator");
+            if (el) el.remove();
+        }
+
+        // Inject keyframe once
+        if (!document.getElementById("typingKeyframe")) {
+            const s = document.createElement("style");
+            s.id = "typingKeyframe";
+            s.textContent = `@keyframes typingDot{0%,80%,100%{opacity:.2}40%{opacity:1}}`;
+            document.head.appendChild(s);
+        }
+
+        // ----------------------------------------------------------------
+        // API base URL — mirrors api.js logic
+        // ----------------------------------------------------------------
+        function getApiBase() {
+            if (window.PAWAI_API_BASE_URL != null) {
+                return String(window.PAWAI_API_BASE_URL).replace(/\/$/, "");
+            }
+            const isLocalDev =
+                (location.hostname === "localhost" || location.hostname === "127.0.0.1") &&
+                location.port !== "8080";
+            return isLocalDev
+                ? "http://" + location.hostname + ":8000"
+                : location.origin;
+        }
+
+        // ----------------------------------------------------------------
+        // Backend API calls — all with credentials so the session cookie
+        // is sent; GEMINI_API_KEY never touches the browser.
+        // ----------------------------------------------------------------
+        async function apiPost(path, body) {
+            const resp = await fetch(getApiBase() + path, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) {
+                const msg = (data && data.detail) ? data.detail : `Request failed (${resp.status})`;
+                throw new Error(msg);
+            }
+            return data;
+        }
+
+        // ----------------------------------------------------------------
+        // Start a chat session on the backend
+        // ----------------------------------------------------------------
+        async function startChatSession(context) {
+            const data = await apiPost("/api/chat/session", {
+                emotion:           context.emotion           || null,
+                confidence:        context.confidence        ?? null,
+                ai_interpretation: context.ai_interpretation || null,
+                filename:          context.filename          || null,
+                media_id:          context.media_id          || null,
+                sampled_frames:    context.sampled_frames    || null,
+                duration:          context.duration          || null,
+            });
+            return data.session_id;
+        }
+
+        // ----------------------------------------------------------------
+        // Send a message and receive the real Gemini reply
+        // ----------------------------------------------------------------
+        async function sendToBackend(userMessage) {
+            if (!chatSessionId) {
+                throw new Error("No active PAWAI session. Please refresh the page.");
+            }
+            const data = await apiPost("/api/chat/message", {
+                session_id: chatSessionId,
+                message:    userMessage,
+            });
+            return data.reply;
+        }
+
+        // ----------------------------------------------------------------
+        // Main send flow (used by form submit, quick buttons, voice)
+        // ----------------------------------------------------------------
+        async function sendQuestion(question) {
+            const trimmed = question.trim();
+            if (!trimmed || isSending) return;
+
+            isSending = true;
+            chatInput.value = "";
+            chatInput.disabled = true;
+            document.querySelector(".send-btn").disabled = true;
+
+            addMessage("user", trimmed);
+            showTyping();
+
+            try {
+                const reply = await sendToBackend(trimmed);
+                hideTyping();
+                lastBotReply = reply;
+                addMessage("bot", reply);
+                speak(reply);
+            } catch (err) {
+                hideTyping();
+                const errMsg = err.message || "PAWAI could not respond. Please try again.";
+                addMessage("bot", `⚠ ${errMsg}`);
+                console.error("PawAI chat error:", err);
+            } finally {
+                isSending = false;
+                chatInput.disabled = false;
+                document.querySelector(".send-btn").disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        // ----------------------------------------------------------------
+        // TTS (browser Speech Synthesis — unchanged from original)
+        // ----------------------------------------------------------------
+        function updateAudioUI() {
+            if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                playIcon.className = "fa-solid fa-pause";
+                speakLastButton.classList.add("is-speaking");
+            } else {
+                playIcon.className = "fa-solid fa-play";
+                speakLastButton.classList.remove("is-speaking");
+            }
+        }
+
+        function speak(text) {
+            if (!("speechSynthesis" in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate  = 0.95;
+            utterance.pitch = 1.05;
+            utterance.onstart  = updateAudioUI;
+            utterance.onend    = updateAudioUI;
+            utterance.onpause  = updateAudioUI;
+            utterance.onresume = updateAudioUI;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        speakLastButton.addEventListener("click", () => {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.paused
+                    ? window.speechSynthesis.resume()
+                    : window.speechSynthesis.pause();
+            } else {
+                speak(lastBotReply || "Hi, I am PAWAI. Ask me anything about your dog.");
+            }
+            updateAudioUI();
+        });
+
+        stopSpeechButton.addEventListener("click", () => {
+            window.speechSynthesis.cancel();
+            updateAudioUI();
+        });
+
+        // ----------------------------------------------------------------
+        // Form / button event wiring
+        // ----------------------------------------------------------------
+        chatForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            sendQuestion(chatInput.value);
+        });
+
+        quickButtons.forEach((btn) => {
+            btn.addEventListener("click", () => sendQuestion(btn.dataset.prompt));
+        });
+
+        // Voice input (unchanged from original)
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = "en-US";
+            recognition.interimResults = false;
+
+            recognition.addEventListener("start", () => voiceButton.classList.add("is-listening"));
+            recognition.addEventListener("end",   () => voiceButton.classList.remove("is-listening"));
+            recognition.addEventListener("result", (event) => {
+                const transcript = event.results[0][0].transcript;
+                chatInput.value = transcript;
+                sendQuestion(transcript);
+            });
+
+            voiceButton.addEventListener("click", () => {
+                voiceButton.classList.contains("is-listening")
+                    ? recognition.stop()
+                    : recognition.start();
+            });
+        }
+
+        // Polling for audio UI update (browser quirk insurance)
+        setInterval(updateAudioUI, 500);
+
+        // ----------------------------------------------------------------
+        // INITIALISATION
+        // Read pawai-chat-context written by result.html, start backend
+        // session, then inject a context-aware greeting.
+        // ----------------------------------------------------------------
+        (async function initChat() {
+            // Read context from sessionStorage (written by result.html)
+            let ctx = null;
+            try {
+                const raw = sessionStorage.getItem("pawai-chat-context");
+                if (raw) ctx = JSON.parse(raw);
+            } catch (e) { /* non-fatal */ }
+
+            // Clear so refreshing doesn't re-use the same context blob
+            sessionStorage.removeItem("pawai-chat-context");
+
+            // Start backend session
+            try {
+                chatSessionId = await startChatSession(ctx || {});
+            } catch (err) {
+                // Not fatal — surface a warning in the chat
+                console.error("PawAI: could not start chat session", err);
+                const el = messages.querySelector(".bubble");
+                if (el) {
+                    el.textContent = "⚠ Could not connect to PAWAI. Check that the backend is running and you are logged in, then refresh.";
+                }
+                return;
+            }
+
+            // Build context-aware opening message and inject it
+            const emotion    = (ctx && ctx.emotion    || "").toLowerCase();
+            const confidence = (ctx && ctx.confidence != null)
+                ? (Number(ctx.confidence) * 100).toFixed(1) + "%"
+                : null;
+            const aiSentence = (ctx && ctx.ai_interpretation || "").trim();
+            const filename   = (ctx && ctx.filename   || "").trim();
+
+            let greeting;
+            if (emotion) {
+                greeting = `Hi! I'm PAWAI. I've reviewed the analysis of ${filename || "your dog's video"}.`;
+                greeting += ` The detected mood was **${emotion}**` + (confidence ? ` (${confidence} confidence)` : "") + ".";
+                if (aiSentence) greeting += ` Here's my initial read: "${aiSentence}"`;
+                greeting += " Ask me anything about what this might mean or what you can do.";
+            } else {
+                greeting = "Hi! I'm PAWAI, your dog-behaviour assistant. Ask me anything about your dog's mood, behaviour, or wellbeing.";
+            }
+
+            // Replace static welcome bubble with context-aware one
+            const existingBubbles = messages.querySelectorAll(".message.bot .bubble");
+            if (existingBubbles.length > 0) {
+                const firstBubble = existingBubbles[0];
+                const meta = firstBubble.querySelector(".bubble-meta");
+                firstBubble.textContent = greeting;
+                if (meta) firstBubble.appendChild(meta);
+            }
+
+            // Add emotion-specific quick-question chip
+            const QUICK_FOR_EMOTION = {
+                happy:  "Bruno seems happy — what activities would keep him in this mood?",
+                relax:  "Bruno looks relaxed — is this a healthy sign?",
+                alert:  "Bruno appears alert — what could be making him attentive?",
+                angry:  "Bruno seems tense — what should I watch out for?",
+                frown:  "Bruno looks unhappy — what should I check first?",
+            };
+            const emoPrompt = QUICK_FOR_EMOTION[emotion];
+            if (emoPrompt) {
+                const suggestionsEl = document.querySelector(".suggestions");
+                if (suggestionsEl) {
+                    const chip = document.createElement("button");
+                    chip.className       = "quick-btn";
+                    chip.type            = "button";
+                    chip.dataset.prompt  = emoPrompt;
+                    chip.textContent     = `About the ${emotion} result`;
+                    chip.addEventListener("click", () => sendQuestion(chip.dataset.prompt));
+                    suggestionsEl.prepend(chip);
+                }
+            }
+
+            // Update side-panel copy to reference the actual analysis
+            if (emotion || filename) {
+                const panelCopy = document.querySelector(".panel-copy");
+                if (panelCopy) {
+                    panelCopy.textContent = emotion
+                        ? `PAWAI has analysed your dog's video and detected a ${emotion} mood. Ask about the behaviour, what it means, and what you can do.`
+                        : `PAWAI has reviewed your dog's analysis. Ask anything about the behaviour, mood, or wellbeing.`;
+                }
+            }
+        })();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account · PawAI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="theme.css">
+    <style>
+        :root {
+            --ink: #f8f6f3;
+            --paper: #181615;
+            --bg: #181615;
+            --surface: rgba(248, 246, 243, .055);
+            --primary: #edc3aa;
+            --primary-dark: #a96849;
+            --primary-light: rgba(237, 195, 170, .15);
+            --warm: #dabf89;
+            --peach: #edc3aa;
+            --text-primary: #f8f6f3;
+            --text-secondary: #c9b9b0;
+            --text-muted: #b5a39a;
+            --border: rgba(216, 200, 187, .28);
+            --success-bg: rgba(218, 191, 137, .16);
+            --success-text: #dabf89;
+            --warning-bg: rgba(169, 104, 73, .18);
+            --warning-text: #edc3aa;
+            --radius-lg: 22px;
+            --radius-sm: 10px;
+            --shadow: 0 18px 45px rgba(0, 0, 0, .5);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Open Sans', Arial, sans-serif;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            background: radial-gradient(circle at 50% 0%, rgba(169, 104, 73, .22) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(237, 195, 170, .07) 0%, transparent 50%), #181615;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 0;
+            font-family: 'Poppins', Arial, sans-serif;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: inherit;
+        }
+
+        img,
+        svg {
+            display: block;
+            max-width: 100%;
+        }
+
+        .layout {
+            display: flex;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 26px 18px;
+            background: rgba(24, 22, 21, .96);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-image {
+            width: 85px;
+            height: 52px;
+            object-fit: contain;
+            transition: transform .25s ease, filter .25s ease;
+        }
+
+        .logo:hover .logo-image {
+            transform: rotate(-5deg) scale(1.06);
+            filter: drop-shadow(0 0 12px rgba(237, 195, 170, .45));
+        }
+
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            color: #d8c8bb;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color .2s ease, color .2s ease, transform .2s ease;
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .nav-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #523a30, var(--primary-dark));
+            color: var(--paper);
+            box-shadow: 0 5px 16px rgba(169, 104, 73, .22);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .account-mini {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 8px 16px;
+        }
+
+        .account-mini .avatar {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(237, 195, 170, .3);
+        }
+
+        .account-mini .name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .account-mini .role {
+            margin-top: 1px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .content-wrap {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            padding: 26px 30px 100px;
+        }
+
+        .main {
+            flex: 2 1 540px;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .right-panel {
+            flex: 1 1 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .pet-switcher {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+            padding-bottom: 4px;
+        }
+
+        .pet-tabs {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            overflow-x: auto;
+        }
+
+        .pet-tab {
+            position: relative;
+            padding: 7px 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: color .2s ease;
+        }
+
+        .pet-tab:hover,
+        .pet-tab.active {
+            color: var(--primary);
+        }
+
+        .pet-tab.active::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            border-radius: 2px;
+            background: var(--primary);
+        }
+
+        .add-pet-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 9px 15px;
+            border: 1px solid var(--primary);
+            border-radius: 999px;
+            background: var(--peach);
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+            transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease;
+        }
+
+        .add-pet-btn:hover {
+            transform: translateY(-1px);
+            background: var(--warm);
+            box-shadow: 0 6px 16px rgba(169, 104, 73, .18);
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .topbar h1 {
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: -.3px;
+        }
+
+        .topbar .subtitle {
+            margin-top: 3px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: fit-content;
+            padding: 11px 20px;
+            border-radius: 999px;
+            font-size: 13.5px;
+            font-weight: 600;
+            transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+        }
+
+        .btn:active {
+            transform: scale(.97);
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(169, 104, 73, .30);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 25px rgba(169, 104, 73, .36);
+        }
+
+        .btn-ghost {
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, .03);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .card {
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-1px);
+            border-color: rgba(169, 104, 73, .28);
+            box-shadow: 0 14px 34px rgba(80, 54, 39, .12);
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-head h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .card-head .link {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            transition: color .2s ease, transform .2s ease;
+        }
+
+        .card-head .link:hover {
+            color: var(--primary-dark);
+            transform: translateX(2px);
+        }
+
+        .card-head .link i {
+            font-size: 10px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(230px, .85fr) minmax(300px, 1.15fr);
+            align-items: center;
+            gap: 26px;
+            position: relative;
+            min-height: 360px;
+            overflow: visible;
+        }
+
+        .hero-text {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            z-index: 3;
+            padding-left: 2px;
+        }
+
+        .section-kicker {
+            margin-bottom: 6px;
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .greeting {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -.3px;
+        }
+
+        .greeting-sub {
+            max-width: 34ch;
+            color: var(--text-secondary);
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .tag.t-purple {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: rgba(237, 195, 170, .20);
+        }
+
+        .tag.t-green {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border-color: rgba(218, 191, 137, .25);
+        }
+
+        .tag.t-amber {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+            border-color: rgba(169, 104, 73, .35);
+        }
+
+        .hero-photo {
+            position: relative;
+            z-index: 2;
+            height: 330px;
+            min-height: 330px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-frame {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 2;
+            object-fit: contain;
+            object-position: center;
+            filter: drop-shadow(0 20px 30px rgba(0, 0, 0, .30));
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 10%, #000 64%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 10%, #000 64%, transparent 100%);
+        }
+
+        .float-card {
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            white-space: nowrap;
+            border: 1px solid rgba(237, 195, 170, .30);
+            border-radius: 16px;
+            background: rgba(51, 38, 34, .88);
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow);
+            transform: translateX(-50%);
+        }
+
+        .float-card .avatar-sm {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .float-card .fc-name {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #fff;
+            font-size: 12.5px;
+            font-weight: 700;
+        }
+
+        .float-card .fc-name i {
+            color: var(--primary);
+            font-size: 10px;
+        }
+
+        .float-card .fc-meta {
+            margin-top: 1px;
+            color: #e8d9d0;
+            font-size: 10.5px;
+        }
+
+        .tip-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tip-text {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        .tip-text b {
+            font-weight: 700;
+        }
+
+        .chart-card {
+            padding-bottom: 18px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 190px;
+            margin: 0 -4px;
+        }
+
+        .chart-wrap svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .chart-grid {
+            stroke: rgba(255, 255, 255, .08);
+            stroke-width: 1;
+            stroke-dasharray: 3 5;
+        }
+
+        .chart-area {
+            fill: url(#chartFill);
+        }
+
+        .chart-line {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 4px 5px rgba(169, 104, 73, .25));
+        }
+
+        .chart-dot {
+            fill: #fff;
+            stroke: var(--primary);
+            stroke-width: 3;
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 5px 0;
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        .chart-note {
+            margin-top: 13px;
+            padding: 9px 10px;
+            border-radius: 10px;
+            background: rgba(109, 72, 55, .07);
+            color: var(--text-secondary);
+            font-size: 10.5px;
+            line-height: 1.5;
+        }
+
+        .chart-note i {
+            margin-right: 3px;
+        }
+
+        .analysis-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .analysis-row {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 8px;
+            margin: 0 -8px;
+            border-bottom: 1px solid var(--border);
+            border-radius: 12px;
+            transition: background-color .25s ease, border-color .25s ease, padding-left .25s ease;
+        }
+
+        .analysis-row:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-type {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 13px;
+            transition: background-color .25s ease, color .25s ease, transform .25s ease;
+        }
+
+        .analysis-copy {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .analysis-name {
+            color: var(--text-primary);
+            font-size: 12.5px;
+            font-weight: 700;
+            transition: color .25s ease;
+        }
+
+        .analysis-meta {
+            margin-top: 3px;
+            color: var(--text-secondary);
+            font-size: 10.5px;
+        }
+
+        .confidence {
+            padding: 4px 7px;
+            border-radius: 999px;
+            background: var(--success-bg);
+            color: var(--success-text);
+            font-size: 10px;
+            font-weight: 800;
+            transition: background-color .25s ease, transform .25s ease;
+        }
+
+        .analysis-row:hover {
+            background: rgba(169, 104, 73, .055);
+            border-bottom-color: rgba(169, 104, 73, .24);
+            padding-left: 12px;
+        }
+
+        .analysis-row:hover .analysis-type {
+            background: rgba(169, 104, 73, .12);
+            color: var(--primary-dark);
+            transform: scale(1.04);
+        }
+
+        .analysis-row:hover .analysis-name {
+            color: var(--primary-dark);
+        }
+
+        .analysis-row:hover .confidence {
+            background: rgba(218, 191, 137, .30);
+            transform: scale(1.02);
+        }
+
+        .content-wrap.is-refreshing .main,
+        .content-wrap.is-refreshing .right-panel {
+            animation: dashboardRefresh .42s ease;
+        }
+
+        @keyframes dashboardRefresh {
+            0% {
+                opacity: .45;
+                transform: translateY(8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            right: 26px;
+            bottom: 26px;
+            z-index: 50;
+            max-width: 330px;
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            padding: 14px 16px;
+            border: 1px solid rgba(237, 195, 170, .45);
+            border-radius: 15px;
+            background: rgba(51, 38, 34, .95);
+            box-shadow: var(--shadow);
+            color: var(--text-primary);
+            transform: translateY(130%);
+            opacity: 0;
+            transition: transform .25s ease, opacity .25s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast i {
+            color: var(--primary);
+            padding-top: 2px;
+        }
+
+        .toast b {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 12px;
+        }
+
+        .toast span {
+            color: var(--text-secondary);
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        .camera-modal[hidden],
+        .edit-profile-modal[hidden] {
+            display: none;
+        }
+
+        .camera-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: rgba(24, 22, 21, .76);
+            backdrop-filter: blur(8px);
+            display: grid;
+            place-items: center;
+            padding: 20px;
+        }
+
+        .camera-panel {
+            width: min(560px, 100%);
+            padding: 18px;
+            border-radius: 20px;
+            background: var(--paper);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .camera-panel header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 13px;
+        }
+
+        .camera-panel h3 {
+            font-size: 15px;
+        }
+
+        .camera-panel p {
+            margin-top: 3px;
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        .camera-feed {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 13px;
+            background: var(--bg);
+            object-fit: cover;
+        }
+
+        .camera-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: border-color .2s ease, color .2s ease;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(24, 22, 21, .92);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid var(--border);
+            padding: 10px 14px;
+            justify-content: space-around;
+            z-index: 20;
+        }
+
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .bottom-nav a i {
+            font-size: 16px;
+        }
+
+        .bottom-nav a.active {
+            color: var(--primary);
+        }
+
+        .edit-profile-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: rgba(51, 38, 34, .62);
+            backdrop-filter: blur(9px);
+            -webkit-backdrop-filter: blur(9px);
+            overflow: hidden;
+        }
+
+        .edit-profile-card {
+            position: relative;
+            width: min(800px, 100%);
+            padding: 30px 38px 34px;
+            border: 1px solid rgba(169, 104, 73, .34);
+            border-radius: 24px;
+            background: radial-gradient(circle at 82% 18%, rgba(237, 195, 170, .20), transparent 27%), rgba(250, 246, 241, .98);
+            color: var(--ink);
+            box-shadow: 0 28px 80px rgba(51, 38, 34, .30);
+            animation: editPopupIn .22s ease-out both;
+        }
+
+        .edit-profile-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .edit-profile-heading h2 {
+            font-size: clamp(22px, 3vw, 30px);
+            line-height: 1.15;
+            font-weight: 800;
+            letter-spacing: -.6px;
+        }
+
+        .edit-profile-heading h2 span {
+            color: var(--primary-dark);
+        }
+
+        .edit-close {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            border: 1px solid #d8c8bb;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #6f625c;
+            background: rgba(255, 255, 255, .42);
+            font-size: 15px;
+            transition: .2s ease;
+        }
+
+        .edit-close:hover {
+            color: #fff;
+            background: var(--peach);
+            border-color: var(--primary-dark);
+            transform: rotate(4deg);
+        }
+
+        .edit-avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .edit-profile-img-wrap {
+            position: relative;
+            width: 112px;
+            height: 112px;
+        }
+
+        .edit-profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid var(--peach);
+            box-shadow: 0 12px 28px rgba(51, 38, 34, .15);
+            background: #f3ddd0;
+        }
+
+        .edit-upload-badge {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border: 3px solid #faf6f1;
+            border-radius: 50%;
+            background: var(--primary-dark);
+            color: #fffaf6;
+            cursor: pointer;
+            box-shadow: 0 5px 14px rgba(169, 104, 73, .28);
+            transition: .2s ease;
+        }
+
+        .edit-upload-badge:hover {
+            transform: scale(1.08);
+            background: #8f553b;
+        }
+
+        .edit-avatar-help {
+            margin: 10px 0 0;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .edit-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px 22px;
+        }
+
+        .edit-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .edit-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .edit-field label {
+            color: #7b665d;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+        }
+
+        .edit-field input,
+        .edit-field select {
+            width: 100%;
+            min-height: 44px;
+            padding: 11px 14px;
+            border: 1px solid #d8c8bb;
+            border-radius: 11px;
+            outline: none;
+            background: rgba(255, 250, 246, .84);
+            color: var(--ink);
+            font: 500 13px/1.2 'Open Sans', Arial, sans-serif;
+            transition: .2s ease;
+        }
+
+        .edit-field input::placeholder {
+            color: #9b8b82;
+        }
+
+        .edit-field input:focus,
+        .edit-field select:focus {
+            border-color: var(--primary-dark);
+            background: #fffaf6;
+            box-shadow: 0 0 0 4px rgba(169, 104, 73, .09);
+        }
+
+        .edit-field select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236f625c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: 17px;
+            background-position: right 14px center;
+            padding-right: 42px;
+        }
+
+        .edit-password-wrap {
+            position: relative;
+        }
+
+        .edit-password-wrap input {
+            padding-right: 44px;
+        }
+
+        .edit-password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 13px;
+            transform: translateY(-50%);
+            padding: 4px;
+            color: #6f625c;
+            font-size: 15px;
+        }
+
+        .edit-password-toggle:hover {
+            color: var(--primary-dark);
+        }
+
+        .edit-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 22px;
+            margin-top: 22px;
+            border-top: 1px solid #e1d3c8;
+        }
+
+        .edit-action-btn {
+            min-width: 104px;
+            min-height: 44px;
+            padding: 10px 20px;
+            border-radius: 11px;
+            font-size: 13px;
+            font-weight: 800;
+            transition: .2s ease;
+        }
+
+        .edit-action-cancel {
+            color: #6f625c;
+            border: 1px solid #c9ad9b;
+            background: transparent;
+        }
+
+        .edit-action-cancel:hover {
+            color: var(--ink);
+            background: #f1e3d8;
+            border-color: #b9917b;
+        }
+
+        .edit-action-save {
+            color: #fffaf6;
+            background: linear-gradient(135deg, #a96849, #c98969);
+            box-shadow: 0 8px 20px rgba(169, 104, 73, .20);
+        }
+
+        .edit-action-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 25px rgba(169, 104, 73, .28);
+        }
+
+        body.edit-modal-open {
+            overflow: hidden;
+        }
+
+        @keyframes editPopupIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(.985);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 860px) {
+            .sidebar {
+                display: none;
+            }
+            .bottom-nav {
+                display: flex;
+            }
+            .content-wrap {
+                padding: 20px 16px 90px;
+            }
+            .hero {
+                grid-template-columns: 1fr;
+                min-height: 0;
+                gap: 12px;
+            }
+            .hero-text {
+                order: 1;
+            }
+            .hero-photo {
+                order: 2;
+                min-height: 320px;
+                height: 320px;
+            }
+            .float-card {
+                left: 50%;
+                bottom: 8px;
+                transform: translateX(-50%);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .edit-profile-modal {
+                padding: 12px;
+            }
+            .edit-profile-card {
+                max-height: 94vh;
+                overflow: auto;
+                padding: 24px 20px 22px;
+                border-radius: 20px;
+            }
+            .edit-form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .edit-field.full {
+                grid-column: auto;
+            }
+            .edit-actions {
+                flex-direction: column-reverse;
+            }
+            .edit-action-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .content-wrap {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+            .pet-switcher {
+                gap: 10px;
+            }
+            .pet-tabs {
+                gap: 16px;
+                width: 100%;
+            }
+            .add-pet-btn {
+                padding: 8px 13px;
+            }
+            .topbar h1 {
+                font-size: 21px;
+            }
+            .photo-frame {
+                width: 260px;
+                height: 260px;
+            }
+            .hero-photo {
+                min-height: 285px;
+                height: 285px;
+            }
+            .float-card .fc-meta {
+                display: none;
+            }
+            .toast {
+                right: 14px;
+                bottom: 78px;
+                left: 14px;
+                max-width: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* ================= LIGHT DESKTOP DASHBOARD FIX ================= */
+        body.light-theme {
+            color: #332622;
+            background: radial-gradient(circle at 27% 38%, #f6e2d4 0%, #e9c8b4 44%, #d6a78e 100%);
+            overflow-y: auto;
+        }
+        body.light-theme .layout {
+            min-height: 100vh;
+            align-items: stretch;
+        }
+        body.light-theme .sidebar {
+            width: 263px;
+            min-height: 100vh;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            background: rgba(250, 244, 238, .78);
+            border-right-color: rgba(143, 84, 57, .16);
+            box-shadow: 8px 0 28px rgba(80, 54, 39, .05);
+        }
+        body.light-theme .nav-item {
+            color: #5f5049;
+        }
+        body.light-theme .nav-item:hover {
+            color: #75432f;
+            background: rgba(169, 104, 73, .08);
+            transform: translateX(2px);
+        }
+        body.light-theme .nav-item.active {
+            color: #332622;
+            background: linear-gradient(135deg, #edc3aa, #c78362);
+            box-shadow: 0 8px 18px rgba(169, 104, 73, .18);
+        }
+        body.light-theme .sidebar-footer {
+            border-top-color: rgba(143, 84, 57, .16);
+        }
+        body.light-theme .account-mini .avatar {
+            background: rgba(237, 195, 170, .45);
+            color: #75432f;
+            border-color: rgba(169, 104, 73, .18);
+        }
+        body.light-theme .account-mini .name {
+            color: #332622;
+        }
+        body.light-theme .account-mini .role {
+            color: #6f625c;
+        }
+        body.light-theme .content-wrap {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 26px;
+            padding: 26px 30px 90px 33px;
+            overflow: visible;
+        }
+        body.light-theme .main {
+            flex: 2 1 650px;
+            min-width: 0;
+            gap: 22px;
+        }
+        body.light-theme .right-panel {
+            flex: 1 1 360px;
+            min-width: 360px;
+            gap: 20px;
+        }
+        body.light-theme .pet-tab {
+            color: #6f625c;
+        }
+        body.light-theme .pet-tab:hover,
+        body.light-theme .pet-tab.active {
+            color: #75432f;
+        }
+        body.light-theme .pet-tab.active::after {
+            background: #a96849;
+        }
+        body.light-theme .add-pet-btn {
+            color: #332622;
+            background: #edc3aa;
+            border-color: #a96849;
+        }
+        body.light-theme .add-pet-btn:hover {
+            background: #dfa786;
+        }
+        body.light-theme .topbar h1,
+        body.light-theme .card-head h3,
+        body.light-theme .greeting,
+        body.light-theme .analysis-name {
+            color: #332622;
+        }
+        body.light-theme .topbar .subtitle,
+        body.light-theme .greeting-sub,
+        body.light-theme .tip-text,
+        body.light-theme .analysis-meta,
+        body.light-theme .chart-labels {
+            color: #6f625c;
+        }
+        body.light-theme .btn-primary {
+            background: #75432f;
+            color: #fffaf6;
+            box-shadow: 0 8px 20px rgba(80, 54, 39, .16);
+        }
+        body.light-theme .btn-primary:hover {
+            background: #633727;
+        }
+        body.light-theme .card {
+            background: radial-gradient(circle at 80% 0%, rgba(237, 195, 170, .14), transparent 23rem), rgba(255, 250, 246, .52);
+            border-color: rgba(143, 84, 57, .20);
+            box-shadow: 0 18px 45px rgba(80, 54, 39, .12);
+        }
+        body.light-theme .card:hover {
+            border-color: rgba(169, 104, 73, .30);
+            box-shadow: 0 20px 42px rgba(80, 54, 39, .14);
+        }
+        body.light-theme .hero {
+            min-height: 382px;
+            grid-template-columns: minmax(330px, .95fr) minmax(330px, 1.05fr);
+            gap: 18px;
+        }
+        body.light-theme .hero-photo {
+            height: 330px;
+            min-height: 330px;
+        }
+        body.light-theme .photo-frame {
+            width: 330px;
+            height: 330px;
+        }
+        body.light-theme .photo-frame img {
+            filter: drop-shadow(0 20px 30px rgba(80, 54, 39, .18));
+        }
+        body.light-theme .float-card {
+            background: rgba(72, 48, 39, .94);
+            border-color: rgba(169, 104, 73, .28);
+            box-shadow: 0 18px 35px rgba(80, 54, 39, .20);
+        }
+        body.light-theme .section-kicker,
+        body.light-theme .card-head .link {
+            color: #75432f;
+        }
+        body.light-theme .tag {
+            color: #75432f;
+            border-color: rgba(169, 104, 73, .20);
+            background: rgba(255, 250, 246, .30);
+        }
+        body.light-theme .tag.t-green {
+            color: #6d5931;
+            background: rgba(218, 191, 137, .16);
+            border-color: rgba(218, 191, 137, .30);
+        }
+        body.light-theme .tag.t-amber {
+            color: #75432f;
+            background: rgba(169, 104, 73, .08);
+        }
+        body.light-theme .chart-grid {
+            stroke: rgba(143, 84, 57, .12);
+        }
+        body.light-theme .chart-line {
+            stroke: #8f5439;
+            filter: drop-shadow(0 4px 5px rgba(169, 104, 73, .18));
+        }
+        body.light-theme .chart-area {
+            opacity: .72;
+        }
+        body.light-theme .chart-dot {
+            fill: #fffaf6;
+            stroke: #8f5439;
+        }
+        body.light-theme .chart-note {
+            color: #6f625c;
+            background: rgba(169, 104, 73, .06);
+        }
+        body.light-theme .analysis-row {
+            border-bottom-color: rgba(143, 84, 57, .16);
+        }
+        body.light-theme .analysis-row:hover {
+            background: rgba(169, 104, 73, .06);
+            border-bottom-color: rgba(169, 104, 73, .22);
+        }
+        body.light-theme .analysis-type {
+            background: rgba(169, 104, 73, .08);
+            color: #75432f;
+        }
+        body.light-theme .analysis-row:hover .analysis-type {
+            background: rgba(169, 104, 73, .13);
+            color: #75432f;
+        }
+        body.light-theme .analysis-row:hover .analysis-name {
+            color: #75432f;
+        }
+        body.light-theme .confidence {
+            background: rgba(218, 191, 137, .22);
+            color: #6d5931;
+        }
+        body.light-theme .analysis-row:hover .confidence {
+            background: rgba(218, 191, 137, .30);
+        }
+        body.light-theme .tip-card {
+            background: rgba(255, 250, 246, .54);
+        }
+        body.light-theme .toast {
+            background: rgba(72, 48, 39, .96);
+        }
+        body.light-theme .bottom-nav {
+            background: rgba(250, 244, 238, .94);
+            border-top-color: rgba(143, 84, 57, .16);
+        }
+        body.light-theme .bottom-nav a {
+            color: #6f625c;
+        }
+        body.light-theme .bottom-nav a.active {
+            color: #75432f;
+        }
+        body.light-theme .content-wrap.is-refreshing .main,
+        body.light-theme .content-wrap.is-refreshing .right-panel {
+            animation: dashboardRefresh .42s ease;
+        }
+        @media (min-width: 861px) {
+            html, body {
+                min-height: 100%;
+                overflow-y: auto;
+            }
+            .layout {
+                min-height: 100vh;
+            }
+        }
+        @media (max-width: 1200px) and (min-width: 861px) {
+            body.light-theme .sidebar { width: 235px; }
+            body.light-theme .content-wrap { padding-left: 24px; padding-right: 24px; gap: 20px; }
+            body.light-theme .main { flex-basis: 600px; }
+            body.light-theme .right-panel { min-width: 320px; }
+            body.light-theme .hero { grid-template-columns: minmax(270px, .9fr) minmax(290px, 1.1fr); }
+            body.light-theme .photo-frame { width: 290px; height: 290px; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- ================= SIDEBAR ================= -->
+        <aside class="sidebar">
+            <a class="logo" href="home.html" aria-label="PawAI home">
+                <img class="logo-image" src="../assets/web-logo-2.png" alt="PawAI logo">
+            </a>
+            <nav class="nav-group">
+                <a class="nav-item" href="home.html"><i class="fa-solid fa-house"></i>Home</a>
+                <a class="nav-item" href="#history"><i class="fa-solid fa-clock-rotate-left"></i>History</a>
+                <a class="nav-item" href="chatbot.html"><i class="fa-solid fa-robot"></i>PawBot</a>
+                <a class="nav-item active" href="my-account.html"><i class="fa-solid fa-user"></i>Account</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="account-mini">
+                    <div class="avatar">AR</div>
+                    <div>
+                        <div class="name">Ankit Raj</div>
+                        <div class="role">Dog Owner</div>
+                    </div>
+                </div>
+                <a class="nav-item" href="05-settings.html"><i class="fa-solid fa-gear"></i>Settings</a>
+                <a class="nav-item" href="08-help.html"><i class="fa-solid fa-circle-question"></i>Help &amp; Support</a>
+            </div>
+        </aside>
+
+        <!-- ================= CONTENT ================= -->
+        <div class="content-wrap">
+            <!-- ---------- MAIN COLUMN ---------- -->
+            <main class="main">
+                <div class="pet-switcher" aria-label="Pet selector">
+                    <div class="pet-tabs" role="tablist" aria-label="Choose a pet">
+                        <a class="pet-tab active" href="#bruno" role="tab" aria-selected="true">Bruno</a>
+                        <a class="pet-tab" href="#luna" role="tab" aria-selected="false">Luna</a>
+                        <a class="pet-tab" href="#max" role="tab" aria-selected="false">Max</a>
+                    </div>
+                    <button class="add-pet-btn" type="button"><i class="fa-solid fa-plus"></i> Add Pet</button>
+                </div>
+
+                <div class="topbar">
+                    <div>
+                        <h1 id="insightTitle">Bruno's insight hub</h1>
+                        <p class="subtitle" id="insightSubtitle">Capture a moment. Let PawAI translate what your dog may be feeling.</p>
+                    </div>
+                    <div class="topbar-actions">
+                        <div class="reveal">
+                            <a href="home.html"><button class="btn-primary" id="new-analysis-trigger"><i class="fa-solid fa-plus"></i> New Analysis</button></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero -->
+                <div class="card">
+                    <div class="hero">
+                        <div class="hero-text">
+                            <div class="section-kicker">Your pet companion</div>
+                            <div class="greeting" id="petGreeting">Good evening, Bruno <i class="fa-solid fa-mars" style="color:var(--primary);font-size:16px;"></i></div>
+                            <p class="greeting-sub" id="petDescription">Golden Retriever · 2 years · Male. Record a moment or upload media and PawAI will turn his cues into clear, everyday language.</p>
+                            <div class="tag-row">
+                                <span class="tag t-purple" id="petTagOne">Curious</span>
+                                <span class="tag t-green" id="petTagTwo">Playful</span>
+                                <span class="tag t-amber" id="petTagThree">Affectionate</span>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="openEditProfile"><i class="fa-solid fa-pen"></i>Edit Profile</button>
+                        </div>
+                        <div class="hero-photo">
+                            <div class="photo-frame" id="petFrame">
+                                <img id="petImg" src="../assets/card-hover-2.png" alt="Bruno playing with a ball">
+                            </div>
+                            <div class="float-card">
+                                <div class="avatar-sm"><i class="fa-solid fa-dog"></i></div>
+                                <div>
+                                    <div class="fc-name" id="petCardName">Bruno <i class="fa-solid fa-mars" style="color:var(--primary);"></i></div>
+                                    <div class="fc-meta" id="petCardMeta">Golden Retriever · 2 yrs</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick insights -->
+                <div class="card tip-card">
+                    <div class="card-head">
+                        <h3><i class="fa-solid fa-wand-magic-sparkles"></i>Latest AI translation</h3>
+                    </div>
+                    <p class="tip-text" id="aiTranslation"><b>"I feel calm and comfortable here."</b> Bruno's relaxed posture, soft eyes, and loose tail suggest he is feeling safe and content.</p>
+                </div>
+            </main>
+
+            <!-- ---------- RIGHT PANEL ---------- -->
+            <aside class="right-panel">
+                <div class="card chart-card">
+                    <div class="card-head">
+                        <h3>AI insights</h3>
+                        <span class="status-pill ok">Last 7 days</span>
+                    </div>
+                    <!-- Python/backend can replace the fallback SVG below using #aiInsightsChart and the /api/insights/mood-trend data source. -->
+                    <div class="chart-wrap" id="aiInsightsChart" data-source="/api/insights/mood-trend" aria-label="Seven day positive mood trend chart">
+                        <svg viewBox="0 0 320 190" role="img" aria-label="Mood confidence rose from 68 to 94 percent this week">
+                            <defs>
+                                <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#a96849" stop-opacity=".28"/>
+                                    <stop offset="100%" stop-color="#a96849" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <line class="chart-grid" x1="4" x2="316" y1="34" y2="34"/>
+                            <line class="chart-grid" x1="4" x2="316" y1="87" y2="87"/>
+                            <line class="chart-grid" x1="4" x2="316" y1="140" y2="140"/>
+                            <path class="chart-area" d="M8,129 C34,113 44,120 59,108 S88,129 109,101 S143,101 159,82 S188,98 211,69 S243,76 263,48 S289,55 312,28 L312,166 L8,166 Z"/>
+                            <path class="chart-line" d="M8,129 C34,113 44,120 59,108 S88,129 109,101 S143,101 159,82 S188,98 211,69 S243,76 263,48 S289,55 312,28"/>
+                            <circle class="chart-dot" cx="312" cy="28" r="5"/>
+                        </svg>
+                    </div>
+                    <div class="chart-labels">
+                        <span>Mon</span>
+                        <span>Tue</span>
+                        <span>Wed</span>
+                        <span>Thu</span>
+                        <span>Fri</span>
+                        <span>Sat</span>
+                        <span>Sun</span>
+                    </div>
+                    <p class="chart-note" id="chartNote"><i class="fa-solid fa-arrow-trend-up" style="color:var(--success-text);"></i> Positive mood cues are trending upward, based on 6 completed analyses.</p>
+                </div>
+
+                <div class="card" id="recentAnalyses">
+                    <div class="card-head">
+                        <h3>Recent analyses</h3>
+                        <a class="link" href="my-account.html">View history <i class="fa-solid fa-chevron-right"></i></a>
+                    </div>
+                    <div class="analysis-list">
+                        <div class="analysis-row">
+                            <div class="analysis-type"><i class="fa-solid fa-video"></i></div>
+                            <div class="analysis-copy">
+                                <div class="analysis-name">Relaxed and comfortable</div>
+                                <div class="analysis-meta">Video · Today, 10:24 AM</div>
+                            </div>
+                            <span class="confidence">94% match</span>
+                        </div>
+                        <div class="analysis-row">
+                            <div class="analysis-type"><i class="fa-solid fa-microphone-lines"></i></div>
+                            <div class="analysis-copy">
+                                <div class="analysis-name">Seeking attention</div>
+                                <div class="analysis-meta">Audio · Yesterday, 7:42 PM</div>
+                            </div>
+                            <span class="confidence">88% match</span>
+                        </div>
+                        <div class="analysis-row">
+                            <div class="analysis-type"><i class="fa-solid fa-image"></i></div>
+                            <div class="analysis-copy">
+                                <div class="analysis-name">Curious and alert</div>
+                                <div class="analysis-meta">Image · Aug 31, 4:18 PM</div>
+                            </div>
+                            <span class="confidence">91% match</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================= EDIT PROFILE POPUP ================= -->
+    <div class="edit-profile-modal" id="editProfileModal" hidden>
+        <form class="edit-profile-card" id="editProfileForm">
+            <div class="edit-profile-heading">
+                <h2>Edit <span>Bruno's</span> Profile</h2>
+                <button type="button" class="edit-close" id="closeEditProfile" aria-label="Close edit profile">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="edit-avatar-section">
+                <div class="edit-profile-img-wrap">
+                    <img src="../assets/img4.jpg" alt="Bruno" class="edit-profile-img" id="editPreviewImg">
+                    <label for="editFileInput" class="edit-upload-badge" title="Change profile photo">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+                    <input type="file" id="editFileInput" hidden accept="image/*">
+                </div>
+                <p class="edit-avatar-help">Click the camera icon to update photo</p>
+            </div>
+
+            <div class="edit-form-grid">
+                <div class="edit-field">
+                    <label for="editPetName">Pet Name</label>
+                    <input id="editPetName" type="text" value="Bruno" placeholder="e.g. Bruno">
+                </div>
+
+                <div class="edit-field">
+                    <label for="editBreed">Breed</label>
+                    <input id="editBreed" type="text" value="Golden Retriever" placeholder="e.g. Golden Retriever">
+                </div>
+
+                <div class="edit-field">
+                    <label for="editAge">Age (years)</label>
+                    <input id="editAge" type="number" value="2" min="0" placeholder="2">
+                </div>
+
+                <div class="edit-field">
+                    <label for="editGender">Gender</label>
+                    <select id="editGender">
+                        <option value="female" selected>Female</option>
+                        <option value="male">Male</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="edit-field">
+                    <label for="editEmail">Email Address</label>
+                    <input id="editEmail" type="email" value="ankit.raj@example.com">
+                </div>
+
+                <div class="edit-field">
+                    <label for="editUserId">User ID</label>
+                    <input id="editUserId" type="text" value="bruno_hub_01">
+                </div>
+
+                <div class="edit-field full">
+                    <label for="editNewPassword">New Password (Leave blank to keep current)</label>
+                    <div class="edit-password-wrap">
+                        <input id="editNewPassword" type="password" placeholder="••••••••••••">
+                        <button type="button" class="edit-password-toggle" id="editPasswordToggle" aria-label="Show password">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-actions">
+                <button type="button" class="edit-action-btn edit-action-cancel" id="cancelEditProfile">Cancel</button>
+                <button type="submit" class="edit-action-btn edit-action-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ================= MOBILE BOTTOM NAV ================= -->
+    <nav class="bottom-nav">
+        <a href="home.html"><i class="fa-solid fa-house"></i>Home</a>
+        <a href="my-account.html"><i class="fa-solid fa-clock-rotate-left"></i>History</a>
+        <a href="chatbot.html"><i class="fa-solid fa-robot"></i>PawBot</a>
+        <a href="05-settings.html" class="active"><i class="fa-solid fa-gear"></i>Settings</a>
+    </nav>
+
+    <div class="toast" id="careToast" role="status" aria-live="polite">
+        <i class="fa-solid fa-circle-check"></i>
+        <div>
+            <b id="toastTitle">Saved</b>
+            <span id="toastText">Your care action has been saved.</span>
+        </div>
+    </div>
+
+    <div class="camera-modal" id="cameraModal" hidden>
+        <div class="camera-panel" role="dialog" aria-modal="true" aria-labelledby="cameraTitle">
+            <header>
+                <div>
+                    <h3 id="cameraTitle">Live movement capture</h3>
+                    <p>Keep Bruno in frame to preview a natural movement moment.</p>
+                </div>
+                <button class="icon-btn" id="closeCamera" aria-label="Close camera"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <video class="camera-feed" id="cameraFeed" autoplay muted playsinline></video>
+            <div class="camera-controls">
+                <button class="btn btn-ghost" id="cancelCamera">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= PAGE INTERACTIONS ================= -->
+    <script src="../assets/js/api.js"></script>
+    <script>
+        // api.js provides the backend API, but its shared application theme must
+        // not override this page's own theme.css/theme.js styling.
+        const sharedThemeStyle = document.getElementById('pawai-shared-theme');
+        if (sharedThemeStyle) sharedThemeStyle.remove();
+
+        document.documentElement.removeAttribute('data-pawai-theme-active');
+        document.documentElement.removeAttribute('data-pawai-high-contrast');
+        document.documentElement.removeAttribute('data-pawai-reduce-motion');
+
+        [
+            '--bg',
+            '--panel',
+            '--field',
+            '--line',
+            '--line-strong',
+            '--text',
+            '--muted',
+            '--pink',
+            '--pink-soft',
+            '--primary',
+            '--button',
+            '--button-text',
+            '--pawai-page-background',
+            '--pawai-panel-tint',
+            '--pawai-button-soft',
+            '--pawai-primary-glow',
+            '--pawai-accent-glow',
+            '--pawai-ui-scale'
+        ].forEach((property) => document.documentElement.style.removeProperty(property));
+
+        document.documentElement.style.removeProperty('zoom');
+    </script>
+    <script src="theme.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const toast = document.getElementById('careToast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastText = document.getElementById('toastText');
+            let toastTimer;
+
+            const showToast = (title, message) => {
+                toastTitle.textContent = title;
+                toastText.textContent = message;
+                toast.classList.add('show');
+                window.clearTimeout(toastTimer);
+                toastTimer = window.setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 4200);
+            };
+
+            const pets = {
+                Bruno: {
+                    subtitle: 'Capture a moment. Let PawAI translate what your dog may be feeling.',
+                    description: 'Golden Retriever · 2 years · Male. Record a moment or upload media and PawAI will turn his cues into clear, everyday language.',
+                    meta: 'Golden Retriever · 2 yrs',
+                    image: '../assets/img4.jpg',
+                    alt: 'Bruno playing with a ball',
+                    gender: 'mars',
+                    tags: [
+                        'Curious',
+                        'Playful',
+                        'Affectionate'
+                    ],
+                    note: 'Positive mood cues are trending upward, based on 6 completed analyses.',
+                    translation: '<b>"I feel calm and comfortable here."</b> Bruno’s relaxed posture, soft eyes, and loose tail suggest he is feeling safe and content.'
+                },
+                Luna: {
+                    subtitle: 'Capture a moment. Let PawAI translate what your dog may be feeling.',
+                    description: 'Golden Retriever · 3 years · Female. Record a moment or upload media and PawAI will turn her cues into clear, everyday language.',
+                    meta: 'Golden Retriever · 3 yrs',
+                    image: '../assets/img2.jpg',
+                    alt: 'Luna raising her paw',
+                    gender: 'venus',
+                    tags: [
+                        'Happy',
+                        'Friendly',
+                        'Energetic'
+                    ],
+                    note: 'Positive mood cues are steady, based on 4 completed analyses.',
+                    translation: '<b>"I’m happy and ready to connect."</b> Luna’s relaxed ears, bright expression, and playful posture suggest she is feeling social and content.'
+                },
+                Max: {
+                    subtitle: 'Capture a moment. Let PawAI translate what your dog may be feeling.',
+                    description: 'Golden Retriever · 4 years · Male. Record a moment or upload media and PawAI will turn his cues into clear, everyday language.',
+                    meta: 'Golden Retriever · 4 yrs',
+                    image: '../assets/img3.jpg',
+                    alt: 'Max playing with a ball',
+                    gender: 'mars',
+                    tags: [
+                        'Focused',
+                        'Playful',
+                        'Confident'
+                    ],
+                    note: 'Active mood cues are trending upward, based on 5 completed analyses.',
+                    translation: '<b>"I’m engaged and ready to play."</b> Max’s alert gaze, open posture, and enthusiastic movement suggest he is excited and confident.'
+                }
+            };
+
+            const contentWrap = document.querySelector('.content-wrap');
+
+            const updatePetDashboard = (name) => {
+                const pet = pets[name];
+                if (!pet) {
+                    return;
+                }
+                document.getElementById('insightTitle').textContent = `${name}'s insight hub`;
+                document.getElementById('insightSubtitle').textContent = pet.subtitle;
+                document.getElementById('petGreeting').innerHTML = `Good evening, ${name} <i class="fa-solid fa-${pet.gender}" style="color:var(--primary);font-size:16px;"></i>`;
+                document.getElementById('petDescription').textContent = pet.description;
+                document.getElementById('petTagOne').textContent = pet.tags[0];
+                document.getElementById('petTagTwo').textContent = pet.tags[1];
+                document.getElementById('petTagThree').textContent = pet.tags[2];
+                document.getElementById('petImg').src = pet.image;
+                document.getElementById('petImg').alt = pet.alt;
+                document.getElementById('petCardName').innerHTML = `${name} <i class="fa-solid fa-${pet.gender}" style="color:var(--primary);"></i>`;
+                document.getElementById('petCardMeta').textContent = pet.meta;
+                document.getElementById('chartNote').innerHTML = `<i class="fa-solid fa-arrow-trend-up" style="color:var(--success-text);"></i> ${pet.note}`;
+                document.getElementById('aiTranslation').innerHTML = pet.translation;
+                contentWrap.classList.remove('is-refreshing');
+                requestAnimationFrame(() => {
+                    contentWrap.classList.add('is-refreshing');
+                });
+            };
+
+            document.querySelectorAll('.pet-tab').forEach((petTab) => {
+                petTab.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    document.querySelectorAll('.pet-tab').forEach((tab) => {
+                        const isSelected = tab === petTab;
+                        tab.classList.toggle('active', isSelected);
+                        tab.setAttribute('aria-selected', String(isSelected));
+                    });
+                    updatePetDashboard(petTab.textContent.trim());
+                });
+            });
+
+            const mediaInput = document.getElementById('mediaInput');
+            const dropZone = document.getElementById('dropZone');
+            const fileStatus = document.getElementById('fileStatus');
+            const fileName = document.getElementById('fileName');
+
+            const setSelectedFile = (file) => {
+                if (!file) {
+                    return;
+                }
+                fileName.textContent = `${file.name} is ready for PawAI analysis`;
+                fileStatus.classList.add('show');
+                showToast('Media selected', 'Your file is ready to be sent to the PawAI model.');
+            };
+
+            if (mediaInput) {
+                mediaInput.addEventListener('change', () => {
+                    setSelectedFile(mediaInput.files[0]);
+                });
+            }
+
+            if (dropZone) {
+                const dragEvents = ['dragenter', 'dragover'];
+                dragEvents.forEach((eventName) => {
+                    dropZone.addEventListener(eventName, (event) => {
+                        event.preventDefault();
+                        dropZone.classList.add('dragging');
+                    });
+                });
+
+                const dropEvents = ['dragleave', 'drop'];
+                dropEvents.forEach((eventName) => {
+                    dropZone.addEventListener(eventName, (event) => {
+                        event.preventDefault();
+                        dropZone.classList.remove('dragging');
+                    });
+                });
+
+                dropZone.addEventListener('drop', (event) => {
+                    setSelectedFile(event.dataTransfer.files[0]);
+                });
+            }
+
+            const cameraModal = document.getElementById('cameraModal');
+            const cameraFeed = document.getElementById('cameraFeed');
+            let cameraStream;
+
+            const closeCamera = () => {
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach((track) => {
+                        track.stop();
+                    });
+                }
+                cameraStream = null;
+                cameraFeed.srcObject = null;
+                cameraModal.hidden = true;
+            };
+
+            const cameraAction = document.getElementById('cameraAction');
+            if (cameraAction) {
+                cameraAction.addEventListener('click', async () => {
+                    try {
+                        cameraStream = await navigator.mediaDevices.getUserMedia({
+                            video: { facingMode: 'environment' },
+                            audio: false
+                        });
+                        cameraFeed.srcObject = cameraStream;
+                        cameraModal.hidden = false;
+                    } catch (error) {
+                        showToast('Camera access needed', 'Please allow camera access, then try again to capture Bruno’s movement.');
+                    }
+                });
+            }
+
+            document.getElementById('closeCamera').addEventListener('click', closeCamera);
+            document.getElementById('cancelCamera').addEventListener('click', closeCamera);
+            window.addEventListener('pagehide', closeCamera);
+
+            /* ---------- Edit Profile Popup ---------- */
+            const editProfileModal = document.getElementById('editProfileModal');
+            const openEditProfile = document.getElementById('openEditProfile');
+            const closeEditProfile = document.getElementById('closeEditProfile');
+            const cancelEditProfile = document.getElementById('cancelEditProfile');
+            const editProfileForm = document.getElementById('editProfileForm');
+            const editFileInput = document.getElementById('editFileInput');
+            const editPreviewImg = document.getElementById('editPreviewImg');
+            const editPasswordToggle = document.getElementById('editPasswordToggle');
+            const editNewPassword = document.getElementById('editNewPassword');
+
+            const closeEditModal = () => {
+                editProfileModal.hidden = true;
+                document.body.classList.remove('edit-modal-open');
+            };
+
+            const openEditModal = () => {
+                editProfileModal.hidden = false;
+                document.body.classList.add('edit-modal-open');
+                requestAnimationFrame(() => {
+                    document.getElementById('editPetName').focus();
+                });
+            };
+
+            openEditProfile.addEventListener('click', openEditModal);
+            closeEditProfile.addEventListener('click', closeEditModal);
+            cancelEditProfile.addEventListener('click', closeEditModal);
+            editProfileModal.addEventListener('click', (event) => {
+                if (event.target === editProfileModal) {
+                    closeEditModal();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !editProfileModal.hidden) {
+                    closeEditModal();
+                }
+            });
+
+            editFileInput.addEventListener('change', () => {
+                const file = editFileInput.files[0];
+                if (!file) {
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    editPreviewImg.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            editPasswordToggle.addEventListener('click', () => {
+                const showPassword = editNewPassword.type === 'password';
+                if (showPassword) {
+                    editNewPassword.type = 'text';
+                } else {
+                    editNewPassword.type = 'password';
+                }
+                const icon = editPasswordToggle.querySelector('i');
+                icon.classList.toggle('fa-eye', !showPassword);
+                icon.classList.toggle('fa-eye-slash', showPassword);
+                if (showPassword) {
+                    editPasswordToggle.setAttribute('aria-label', 'Hide password');
+                } else {
+                    editPasswordToggle.setAttribute('aria-label', 'Show password');
+                }
+            });
+
+            editProfileForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                closeEditModal();
+                if (typeof showToast === 'function') {
+                    showToast('Profile updated', 'Bruno’s profile has been updated successfully.');
+                }
+            });
+        });
+    </script>
+    <script>
+        /* Database-backed account data. This runs after the existing visual
+           interactions and replaces their demo content with API data. */
+        document.addEventListener('DOMContentLoaded', async () => {
+            const $ = (selector) => document.querySelector(selector);
+            const fallbackImage = '../assets/card-hover-2.png';
+            let pets = [];
+            let activePet = null;
+
+            const initials = (value) => (value || '?').split(/[\s._-]+/).filter(Boolean)
+                .slice(0, 2).map((part) => part[0].toUpperCase()).join('') || '?';
+
+            const petMeta = (pet, compact = false) => [
+                pet.breed,
+                pet.age && compact && /^\d+$/.test(pet.age) ? `${pet.age} yrs` : pet.age,
+                pet.gender
+            ].filter(Boolean).map((value) => `${value}`.replace(/^./, (letter) => letter.toUpperCase())).join(' · ');
+
+            const mediaIcon = (type) => ({ image: 'fa-image', video: 'fa-video', audio: 'fa-microphone-lines' }[type] || 'fa-file');
+
+            const formatDate = (value) => {
+                const date = new Date(value);
+                return Number.isNaN(date.getTime()) ? 'Unknown date' : new Intl.DateTimeFormat('en-IN', {
+                    dateStyle: 'medium', timeStyle: 'short'
+                }).format(date);
+            };
+
+            function renderTabs() {
+                const tabs = $('.pet-tabs');
+                if (!tabs) return;
+                tabs.replaceChildren();
+
+                if (!pets.length) {
+                    const empty = document.createElement('span');
+                    empty.className = 'pet-tab active';
+                    empty.textContent = 'No pet profile';
+                    tabs.appendChild(empty);
+                    return;
+                }
+
+                pets.forEach((pet) => {
+                    const tab = document.createElement('button');
+                    tab.type = 'button';
+                    tab.className = 'pet-tab';
+                    tab.setAttribute('role', 'tab');
+                    tab.textContent = pet.name;
+                    tab.classList.toggle('active', pet.id === activePet.id);
+                    tab.setAttribute('aria-selected', String(pet.id === activePet.id));
+                    tab.addEventListener('click', () => {
+                        activePet = pet;
+                        renderTabs();
+                        renderDashboard();
+                        loadRecentUploads();
+                    });
+                    tabs.appendChild(tab);
+                });
+            }
+
+            function renderDashboard() {
+                if (!activePet) {
+                    $('#insightTitle').textContent = 'Your pet insight hub';
+                    $('#insightSubtitle').textContent = 'Add a pet profile to personalise your PawAI dashboard.';
+                    $('#petGreeting').textContent = 'Welcome to PawAI';
+                    $('#petDescription').textContent = 'Create a pet profile to begin saving pet-specific uploads.';
+                    $('#petCardName').textContent = 'Your pet';
+                    $('#petCardMeta').textContent = 'No profile yet';
+                    return;
+                }
+
+                const pet = activePet;
+                const genderIcon = pet.gender === 'male' ? 'mars' : pet.gender === 'female' ? 'venus' : 'paw';
+                const metadata = petMeta(pet);
+                $('#insightTitle').textContent = `${pet.name}'s insight hub`;
+                $('#insightSubtitle').textContent = `Your ${pet.species || 'pet'} profile and uploaded PawAI media.`;
+                $('#petGreeting').innerHTML = `Hello, ${pet.name} <i class="fa-solid fa-${genderIcon}" style="color:var(--primary);font-size:16px;"></i>`;
+                $('#petDescription').textContent = `${metadata ? `${metadata}. ` : ''}Upload a photo, video, or audio recording from Home to keep ${pet.name}'s history together.`;
+                $('#petTagOne').textContent = 'Dog profile';
+                $('#petTagTwo').textContent = pet.breed || 'Breed not added';
+                $('#petTagThree').textContent = pet.age ? `Age: ${pet.age}` : 'Age not added';
+                $('#petImg').src = pet.avatar_url || fallbackImage;
+                $('#petImg').alt = `${pet.name}'s profile image`;
+                $('#petCardName').innerHTML = `${pet.name} <i class="fa-solid fa-${genderIcon}" style="color:var(--primary);"></i>`;
+                $('#petCardMeta').textContent = petMeta(pet, true) || 'Profile details not added';
+                $('#aiTranslation').textContent = `PawAI has ${pet.name}'s profile ready. Upload media from Home to build ${pet.name}'s activity history.`;
+                $('#chartNote').innerHTML = '<i class="fa-solid fa-circle-info" style="color:var(--success-text);"></i> Mood trends will appear when the backend saves AI analysis results.';
+            }
+
+            async function loadRecentUploads() {
+                const list = $('#recentAnalyses .analysis-list');
+                if (!list) return;
+                list.replaceChildren();
+
+                try {
+                    const allMedia = await PawAIApi.listMedia(activePet?.species);
+                    // Older uploads were created before the home page sent a
+                    // pet_id. Keep those visible instead of hiding history.
+                    const items = activePet
+                        ? allMedia.filter((item) => item.pet_id === activePet.id || !item.pet_id)
+                        : allMedia;
+                    const heading = $('#recentAnalyses .card-head h3');
+                    if (heading) heading.textContent = 'Recent uploads';
+
+                    if (!items.length) {
+                        const empty = document.createElement('p');
+                        empty.className = 'analysis-meta';
+                        empty.style.padding = '10px 0';
+                        empty.textContent = 'No uploads yet. Start a new analysis from Home.';
+                        list.appendChild(empty);
+                        return;
+                    }
+
+                    items.slice(0, 5).forEach((item) => {
+                        const row = document.createElement('div');
+                        row.className = 'analysis-row';
+                        row.innerHTML = `<div class="analysis-type"><i class="fa-solid ${mediaIcon(item.media_type)}"></i></div><div class="analysis-copy"><div class="analysis-name"></div><div class="analysis-meta"></div></div><span class="confidence">Stored</span>`;
+                        row.querySelector('.analysis-name').textContent = item.original_filename;
+                        row.querySelector('.analysis-meta').textContent = `${item.media_type} · ${formatDate(item.created_at)}`;
+                        list.appendChild(row);
+                    });
+                } catch (error) {
+                    const message = document.createElement('p');
+                    message.className = 'analysis-meta';
+                    message.style.padding = '10px 0';
+                    message.textContent = 'Could not load upload history right now.';
+                    list.appendChild(message);
+                }
+            }
+
+            async function saveProfile(event) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                if (!activePet) return;
+
+                const payload = {
+                    name: $('#editPetName').value.trim(),
+                    breed: $('#editBreed').value.trim() || null,
+                    age: $('#editAge').value.trim() || null,
+                    gender: $('#editGender').value,
+                    species: activePet.species
+                };
+                if (!payload.name) return;
+
+                try {
+                    const updated = await PawAIApi.updatePet(activePet.id, payload);
+                    pets = pets.map((pet) => pet.id === updated.id ? updated : pet);
+                    activePet = updated;
+                    renderTabs();
+                    renderDashboard();
+                    $('#editProfileModal').hidden = true;
+                    document.body.classList.remove('edit-modal-open');
+                    $('#toastTitle').textContent = 'Profile updated';
+                    $('#toastText').textContent = `${updated.name}'s details were saved.`;
+                    $('#careToast').classList.add('show');
+                } catch (error) {
+                    $('#toastTitle').textContent = 'Could not save profile';
+                    $('#toastText').textContent = error instanceof PawAIApi.ApiError ? error.message : 'Please try again.';
+                    $('#careToast').classList.add('show');
+                }
+            }
+
+            const user = await PawAIAuth.requireUser({ loginPage: '02-login.html' });
+            if (!user) return;
+
+            const sidebarAvatar = $('.account-mini .avatar');
+            const sidebarName = $('.account-mini .name');
+            const sidebarRole = $('.account-mini .role');
+            if (sidebarAvatar) sidebarAvatar.textContent = initials(user.username);
+            if (sidebarName) sidebarName.textContent = user.username;
+            if (sidebarRole) sidebarRole.textContent = 'PawAI member';
+
+            try {
+                pets = await PawAIApi.listPets();
+                activePet = pets[0] || null;
+            } catch (error) {
+                pets = [];
+            }
+
+            renderTabs();
+            renderDashboard();
+            await loadRecentUploads();
+
+            $('.add-pet-btn')?.addEventListener('click', () => {
+                window.location.href = '01-create-account.html';
+            });
+
+            $('#openEditProfile')?.addEventListener('click', () => {
+                if (!activePet) return;
+                $('#editPetName').value = activePet.name || '';
+                $('#editBreed').value = activePet.breed || '';
+                $('#editAge').value = activePet.age || '';
+                $('#editGender').value = activePet.gender || 'other';
+            });
+
+            /* Capture phase prevents the older demo submit handler from
+               showing a success message before the API request finishes. */
+            $('#editProfileForm')?.addEventListener('submit', saveProfile, true);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+DOG EMOTION MODEL TEST RESULTS
+==============================
+
+Test images: 1399
+Test accuracy: 0.6169
+Test accuracy: 61.69%
+
+Classification Report
+----------------------
+              precision    recall  f1-score   support
+
+       alert     0.5326    0.5269    0.5297       279
+       angry     0.5235    0.3179    0.3956       280
+       frown     0.5619    0.6321    0.5950       280
+       happy     0.6667    0.8143    0.7331       280
+       relax     0.7500    0.7929    0.7708       280
+
+    accuracy                         0.6169      1399
+   macro avg     0.6069    0.6168    0.6048      1399
+weighted avg     0.6070    0.6169    0.6049      1399
+
+
+Confusion Matrix
+----------------
+[[147  38  54  31   9]
+ [ 55  89  42  73  21]
+ [ 49   7 177   6  41]
+ [ 12  29   8 228   3]
+ [ 13   7  34   4 222]]

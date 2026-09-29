@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings - PawAI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap');
+    :root {
+      --ink: #332622;
+      --deep: #181615;
+      --paper: #f8f6f3;
+      --warm: #dabf89;
+      --peach: #edc3aa;
+      --peach-deep: #a96849;
+      --line: #d8c8bb;
+      --muted: #6f625c;
+      --field: var(--deep);
+      --text: var(--paper);
+      --pink: var(--peach);
+      --pink-soft: var(--peach-deep);
+      --green: var(--warm);
+      --shadow: 0 24px 70px rgba(24, 22, 21, .45);
+      --font: "Open Sans", Arial, sans-serif;
+      --heading-font: "Poppins", Arial, sans-serif;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: var(--heading-font);
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background: radial-gradient(circle at 30% 40%, #523a30 0, #302522 37%, #181817 73%);
+      font-family: var(--font);
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 16px 0 22px;
+    }
+    .navbar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      min-height: 64px;
+      margin-bottom: 16px;
+    }
+    .nav-left {
+      justify-self: start;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+    .logo-image {
+      width: 58px;
+      height: 52px;
+      object-fit: contain;
+      display: block;
+    }
+    .back-arrow {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 10px;
+      color: var(--pink);
+      background: transparent;
+      transition: transform .2s ease, color .2s ease;
+    }
+    .back-arrow i {
+      font-size: 16px;
+    }
+    .back-arrow:hover {
+      transform: translateX(-2px);
+      color: var(--paper);
+      background: transparent;
+    }
+    .nav-center,
+    .nav-right {
+      display: flex;
+      align-items: center;
+    }
+    .nav-center {
+      justify-self: center;
+      gap: 30px;
+    }
+    .nav-center a {
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 800;
+      transition: color .2s ease;
+    }
+    .nav-center a:hover {
+      color: var(--pink);
+    }
+    .nav-right {
+      justify-self: end;
+      gap: 28px;
+    }
+    .nav-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      color: var(--pink);
+      font-size: 17px;
+      transition: color .2s ease, transform .2s ease;
+    }
+    .nav-icon:hover {
+      color: var(--paper);
+      transform: translateY(-1px);
+    }
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+    h1 {
+      margin-bottom: 5px;
+      font-size: clamp(25px, 4vw, 32px);
+      line-height: 1.08;
+    }
+    h2 {
+      margin-bottom: 12px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    .muted {
+      color: #d1c2ac;
+      font-weight: 500;
+    }
+    .top-row .muted {
+      margin-bottom: 0;
+      font-size: 12px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 11px;
+      border: 1px solid rgba(237, 195, 170, .5);
+      border-radius: 999px;
+      color: var(--pink);
+      background: rgba(237, 195, 170, .11);
+      font-size: 11px;
+      font-weight: 850;
+    }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: radial-gradient(circle at 80% 0%, rgba(237, 195, 170, .14), transparent 23rem), rgba(51, 38, 34, .92);
+      box-shadow: var(--shadow);
+    }
+    .setting-field {
+      display: grid;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+    .setting-field:last-child {
+      margin-bottom: 0;
+    }
+    label,
+    .setting-title {
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 850;
+    }
+    select {
+      width: 100%;
+      min-height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--peach-deep);
+      border-radius: 10px;
+      outline: none;
+      color: var(--text);
+      background: var(--field);
+    }
+    select:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(237, 195, 170, .18);
+    }
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 44px;
+      padding: 9px 0;
+      border-top: 1px solid var(--line);
+    }
+    .setting-row:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .switch {
+      position: relative;
+      display: inline-flex;
+      width: 42px;
+      height: 24px;
+      flex: 0 0 auto;
+    }
+    .switch input {
+      position: absolute;
+      opacity: 0;
+    }
+    .slider {
+      width: 100%;
+      border-radius: 999px;
+      background: var(--peach-deep);
+      transition: background .2s ease;
+    }
+    .slider::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--paper);
+      transition: transform .2s ease;
+    }
+    .switch input:checked + .slider {
+      background: linear-gradient(135deg, var(--pink), var(--pink-soft));
+    }
+    .switch input:checked + .slider::before {
+      transform: translateX(18px);
+    }
+    .ghost-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 0 13px;
+      border: 1px solid rgba(237, 195, 170, .55);
+      border-radius: 10px;
+      color: var(--pink);
+      background: rgba(237, 195, 170, .1);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .ghost-btn:hover {
+      border-color: rgba(237, 195, 170, .7);
+      background: rgba(237, 195, 170, .15);
+    }
+    .action-message {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      padding: 10px 15px;
+      border: 1px solid rgba(237, 195, 170, .45);
+      border-radius: 10px;
+      color: var(--green);
+      background: rgba(51, 38, 34, .96);
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      font-weight: 700;
+      z-index: 10;
+    }
+    @media (max-width: 900px) {
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 24px, 680px);
+      }
+      .top-row {
+        align-items: flex-start;
+      }
+      .card {
+        padding: 14px;
+      }
+      .navbar {
+        grid-template-columns: auto 1fr auto;
+      }
+      .nav-center {
+        gap: 14px;
+      }
+      .nav-center a {
+        font-size: 11px;
+      }
+      .nav-right {
+        gap: 12px;
+      }
+      .logo-image {
+        width: 52px;
+        height: 46px;
+      }
+      .top-row > .pill {
+        display: none;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <div class="nav-left">
+        <a class="back-arrow" href="#" onclick="history.back(); return false;" aria-label="Go back" title="Go back">
+          <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <a class="brand" href="home.html" aria-label="PawAI home">
+          <img src="../assets/web-logo-2.png" alt="PawAI logo" class="logo-image">
+        </a>
+      </div>
+      <nav class="nav-center" aria-label="Primary navigation">
+        <a href="home.html">Home</a>
+        <a href="chatbot.html">PawBot</a>
+        <a href="08-help.html">Help</a>
+        <a href="07-contact.html">Contact</a>
+      </nav>
+      <div class="nav-right">
+        <a class="nav-icon" href="#" aria-label="Notifications" title="Notifications">
+          <i class="fa-regular fa-bell"></i>
+        </a>
+        <a class="nav-icon" href="05-settings.html" aria-label="Settings" title="Settings">
+          <i class="fa-solid fa-gear"></i>
+        </a>
+        <a class="nav-icon" href="my-account.html" aria-label="Profile" title="Profile">
+          <i class="fa-solid fa-user"></i>
+        </a>
+      </div>
+    </header>
+    <main>
+      <section class="top-row" aria-labelledby="settingsTitle">
+        <div>
+          <h1 id="settingsTitle">Settings</h1>
+          <p class="muted">Control appearance, accessibility, notifications, and privacy.</p>
+        </div>
+        <span class="pill">Preferences</span>
+      </section>
+      <div class="settings-grid">
+        <section class="card" aria-labelledby="appearanceTitle">
+          <h2 id="appearanceTitle">Appearance</h2>
+          <div class="setting-field">
+            <label for="theme">Theme</label>
+            <select id="theme" name="theme">
+              <option>Dark</option>
+              <option>Light</option>
+              <option>System</option>
+            </select>
+          </div>
+          <div class="setting-field">
+            <label for="fontSize">Font Size</label>
+            <select id="fontSize" name="fontSize">
+              <option>Medium</option>
+              <option>Small</option>
+              <option>Large</option>
+            </select>
+          </div>
+          <div class="setting-field">
+            <label for="density">UI Density</label>
+            <select id="density" name="density">
+              <option>Comfortable</option>
+              <option>Compact</option>
+            </select>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="accessibilityTitle">
+          <h2 id="accessibilityTitle">Accessibility</h2>
+          <div class="setting-row">
+            <span class="setting-title">Larger Text</span>
+            <label class="switch" aria-label="Toggle larger text">
+              <input type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span class="setting-title">High Contrast</span>
+            <label class="switch" aria-label="Toggle high contrast">
+              <input type="checkbox">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span class="setting-title">Reduce Animations</span>
+            <label class="switch" aria-label="Toggle reduced animations">
+              <input type="checkbox">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="notificationsTitle">
+          <h2 id="notificationsTitle">Notifications</h2>
+          <div class="setting-row">
+            <span class="setting-title">Analysis Complete</span>
+            <label class="switch" aria-label="Toggle analysis notifications">
+              <input type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span class="setting-title">Chatbot Messages</span>
+            <label class="switch" aria-label="Toggle chatbot notifications">
+              <input type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span class="setting-title">General Updates</span>
+            <label class="switch" aria-label="Toggle general notifications">
+              <input type="checkbox">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="privacyTitle">
+          <h2 id="privacyTitle">Privacy &amp; Security</h2>
+          <div class="setting-row">
+            <span class="setting-title">Save Analysis History</span>
+            <label class="switch" aria-label="Toggle analysis history">
+              <input type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span class="setting-title">Clear Uploaded Media</span>
+            <button class="ghost-btn" type="button" data-action="Uploaded media cleared.">Clear</button>
+          </div>
+          <div class="setting-row">
+            <span class="setting-title">Change Password</span>
+            <button class="ghost-btn" type="button" data-action="Password settings are ready to connect.">Open</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="theme.js"></script>
+  <script>
+    const settingActions = document.querySelectorAll("[data-action]");
+    settingActions.forEach((button) => {
+      button.addEventListener("click", () => {
+        const message = document.createElement("div");
+        message.className = "action-message";
+        message.textContent = button.dataset.action;
+        document.querySelector("main").appendChild(message);
+        setTimeout(() => message.remove(), 2500);
+      });
+    });
+  </script>
+</body>
+</html>

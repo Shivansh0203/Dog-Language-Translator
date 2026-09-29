@@ -1,0 +1,1514 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PawAI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="theme.css">
+    <style>
+        :root {
+            --ink: #332622;
+            --deep: #181615;
+            --paper: #f8f6f3;
+            --warm: #dabf89;
+            --peach: #edc3aa;
+            --peach-deep: #a96849;
+            --line: #d8c8bb;
+            --muted: #6f625c;
+            --theme-track: rgba(248, 246, 243, .10);
+            --theme-border: rgba(237, 195, 170, .42);
+            --theme-icon: #edc3aa;
+            --serif: "Poppins", Arial, sans-serif;
+            --sans: "Open Sans", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+            font-family: var(--sans);
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ---------- theme toggle ---------- */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid rgba(237, 195, 170, .48);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .075);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            overflow: hidden;
+            flex: 0 0 auto;
+            isolation: isolate;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 4px 14px rgba(0,0,0,.10);
+            transition: background .45s ease, border-color .45s ease, box-shadow .45s ease, transform .25s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: rgba(237, 195, 170, .78);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 6px 20px rgba(0,0,0,.16), 0 0 18px rgba(237,195,170,.12);
+            transform: translateY(-1px);
+        }
+
+        .theme-toggle:active {
+            transform: scale(.97);
+        }
+
+        .theme-icon {
+            position: relative;
+            z-index: 3;
+            width: 30px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            font-size: 10px;
+            line-height: 1;
+            pointer-events: none;
+            transition: color .4s ease, opacity .4s ease, transform .4s cubic-bezier(.16,1,.3,1);
+        }
+
+        .theme-icon-light {
+            color: #8f7b70;
+            opacity: .72;
+        }
+
+        .theme-icon-dark {
+            color: #332622;
+            opacity: 1;
+        }
+
+        .theme-toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #dabf89;
+            box-shadow: 0 3px 10px rgba(0,0,0,.24), inset 0 1px 1px rgba(255,255,255,.28);
+            transition: transform .55s cubic-bezier(.16,1,.3,1), background .45s ease, box-shadow .45s ease;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Smooth theme-property transition */
+        body,
+        .hero,
+        #features-section,
+        .steps,
+        footer,
+        .step-item,
+        .join-btn,
+        .nav-link {
+            transition: background .55s ease, color .45s ease, border-color .45s ease, box-shadow .45s ease;
+        }
+
+        .shell {
+            width: min(1120px, calc(100% - 48px));
+            margin: auto;
+        }
+
+        .navbar {
+            position: absolute;
+            inset: 0 0 auto;
+            z-index: 5;
+            width: 100%;
+            height: 80px;
+            padding: 0 10%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #f8f2ec;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .logo-image {
+            width: 85px;
+            height: 52px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-center, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            font-size: 11px;
+        }
+
+        .nav-link {
+            opacity: .9;
+            border: 0;
+            border-bottom: 1px solid transparent;
+            padding: 7px 0;
+            background: transparent;
+            cursor: pointer;
+            font: inherit;
+            transition: .2s;
+        }
+
+        .nav-link:hover {
+            color: var(--peach);
+            border-color: var(--peach);
+        }
+
+        .join-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid var(--peach);
+            border-radius: 999px;
+            padding: 11px 21px;
+            background: var(--peach);
+            color: var(--ink);
+            font: 600 11px var(--sans);
+            letter-spacing: .02em;
+            transition: transform .2s, background .2s;
+        }
+
+        .join-btn:hover {
+            transform: translateY(-2px);
+            background: #ffa974;
+        }
+
+        section {
+            scroll-margin-top: 60px;
+        }
+
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            background: radial-gradient(circle at 30% 40%, #523a30 0, #302522 37%, #181817 73%);
+            color: #fffaf6;
+        }
+
+        .hero:after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(90deg, rgba(25, 20, 18, .28), transparent 60%), linear-gradient(0deg, rgba(12, 12, 12, .25), transparent 52%);
+        }
+
+        .hero-animal {
+            position: absolute;
+            right: 10%;
+            bottom: 0;
+            z-index: -2;
+            width: min(42vw, 540px);
+            height: 75%;
+            object-fit: contain;
+            object-position: center bottom;
+            mix-blend-mode: screen;
+            opacity: 0.82;
+            filter: contrast(0.92) sepia(0.1);
+        }
+
+        .hero-copy {
+            padding-top: 72px;
+        }
+
+        .hero-pre, .pill {
+            display: inline-block;
+            color: var(--peach);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, h3, h4, p {
+            margin-top: 0;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--serif);
+            font-weight: 600;
+            letter-spacing: .015em;
+        }
+
+        h1 {
+            margin: 18px 0 17px;
+            font-size: clamp(48px, 5.4vw, 70px);
+            line-height: .88;
+        }
+
+        .hero-p {
+            max-width: 410px;
+            margin-bottom: 26px;
+            color: #e0d8d2;
+            font-size: 12px;
+            line-height: 1.75;
+        }
+
+        .hero .join-btn {
+            padding: 13px 25px;
+        }
+
+        #features-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            overflow: hidden;
+            padding: 80px 10% 80px 45%;
+            background: radial-gradient(circle at 25% 50%, rgba(237, 195, 170, 0.22), transparent 40%), linear-gradient(110deg, #f8f3ee 0%, #f2e9e1 55%, #eee3da 100%);
+            color: #332622;
+            text-align: right;
+        }
+
+        #features-section .features-visual {
+            position: absolute;
+            left: 4%;
+            top: 50%;
+            width: 40%;
+            height: 72%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateY(-50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #features-section .features-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+        }
+
+        #features-section .unique-features {
+            position: relative;
+            z-index: 2;
+            width: min(100%, 620px);
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+            padding: 0;
+            margin: 0 0 0 auto;
+        }
+
+        #features-section .feature-intro {
+            width: 100%;
+            margin-bottom: 8px;
+            text-align: right;
+        }
+
+        #features-section .pill {
+            display: inline-block;
+            margin-bottom: 18px;
+            padding: 9px 20px;
+            border: 1px solid #8f5439;
+            border-radius: 999px;
+            background: rgba(217, 154, 120, 0.06);
+            color: #75432f;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: none;
+            box-shadow: 0 0 20px rgba(143, 84, 57, 0.08);
+        }
+
+        #features-section h2 {
+            width: 100%;
+            margin: 15px 0 5px;
+            color: #332622;
+            font-family: var(--sans);
+            font-size: clamp(28px, 3.5vw, 44px);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -1px;
+            text-align: right;
+            text-shadow: 0 2px 20px rgba(51, 38, 34, 0.08);
+        }
+
+        #features-section .feature-entry {
+            position: relative;
+            width: 100%;
+            padding: 0 30px 0 0;
+            border: 0;
+            text-align: right;
+        }
+
+        #features-section .feature-entry::after {
+            position: absolute;
+            top: 10%;
+            right: 0;
+            width: 2px;
+            height: 80%;
+            content: "";
+            background: linear-gradient(to bottom, transparent, #a96849, transparent);
+            box-shadow: 0 0 15px rgba(169, 104, 73, 0.35);
+            opacity: 0.6;
+            transition: opacity 0.4s ease, top 0.4s ease, height 0.4s ease;
+        }
+
+        #features-section .feature-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-bottom: 8px;
+            transition: transform 0.4s ease;
+        }
+
+        #features-section .feature-tag {
+            color: #75432f;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(117, 67, 47, 0.12);
+        }
+
+        #features-section .feature-entry h3 {
+            margin: 0;
+            color: #332622;
+            font-family: var(--sans);
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+            text-align: right;
+            transition: color 0.4s ease, text-shadow 0.4s ease;
+        }
+
+        #features-section .feature-entry p {
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: 0;
+            margin-bottom: 0;
+            color: #6f625c;
+            font-size: 15px;
+            line-height: 1.7;
+            text-align: right;
+            transition: transform 0.4s ease, color 0.4s ease;
+        }
+
+        #features-section .feature-entry:hover .feature-header,
+        #features-section .feature-entry:hover p {
+            transform: translateX(-10px);
+        }
+
+        #features-section .feature-entry:hover::after {
+            top: 0;
+            height: 100%;
+            opacity: 1;
+        }
+
+        #features-section .feature-entry:hover h3 {
+            color: #8f5439;
+            text-shadow: 0 0 20px rgba(143, 84, 57, 0.15);
+        }
+
+        .steps {
+            padding: 78px 0 85px;
+            background: var(--warm);
+            text-align: center;
+        }
+
+        #steps-section .pill {
+            color: #ffffff;
+            font-size: 12px;
+        }
+
+        .steps h2 {
+            margin: 10px 0 38px;
+            color: #332622;
+            font-size: 44px;
+            line-height: 0.9;
+        }
+
+        .steps-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 36px;
+            max-width: 860px;
+            margin: auto;
+            text-align: left;
+            overflow: visible;
+        }
+
+        .step-item {
+            position: relative;
+            min-height: 232px;
+            padding: 28px 26px;
+            border: 1px solid rgba(143, 84, 57, 0.22);
+            border-radius: 14px;
+            background: rgba(250, 246, 241, 0.92);
+            box-shadow: 0 10px 25px rgba(80, 54, 39, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            overflow: visible;
+        }
+
+        .step-item::before {
+            position: absolute;
+            top: 0;
+            left: 26px;
+            width: 38px;
+            height: 3px;
+            content: "";
+            background: #a96849;
+            border-radius: 0 0 4px 4px;
+            opacity: 0.8;
+            z-index: 4;
+        }
+
+        .step-item:hover {
+            transform: translateY(-8px);
+            border-color: rgba(143, 84, 57, 0.45);
+            box-shadow: 0 18px 35px rgba(80, 54, 39, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .step-number {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(143, 84, 57, 0.25);
+            border-radius: 50%;
+            background: #edc3aa;
+            color: #573d34;
+            font: 600 12px var(--serif);
+            box-shadow: 0 4px 10px rgba(80, 54, 39, 0.08);
+            position: relative;
+            z-index: 3;
+        }
+
+        .step-info {
+            position: relative;
+            z-index: 3;
+        }
+
+        .step-info h4 {
+            margin: 31px 0 9px;
+            color: #332622;
+            font-family: var(--serif);
+            font-size: 25px;
+            font-weight: 600;
+            line-height: 0.95;
+        }
+
+        .step-info p {
+            color: #6f625c;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        /* Dog pop-up effect */
+        .step-dog {
+            position: absolute;
+            z-index: 2;
+            width: 210px;
+            height: 210px;
+            object-fit: contain;
+            left: 50%;
+            bottom: calc(100% - 25px);
+            transform: translate(-50%, 130px) scale(0.65);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.6s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .step-item::after {
+            content: "";
+            position: absolute;
+            z-index: 2;
+            inset: 1px;
+            border-radius: 13px;
+            background: rgba(250, 246, 241, 1);
+            pointer-events: none;
+        }
+
+        .step-item:hover .step-dog {
+            opacity: 1;
+            transform: translate(-50%, 20px) scale(1);
+        }
+
+        footer {
+            background: linear-gradient(100deg, #362824, #171717);
+            color: #f5eee9;
+        }
+
+        .footer-inner {
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-copy p {
+            margin: 0;
+            color: #d4c5bb;
+            font-size: 14px;
+            line-height: 1.9;
+        }
+
+        .auth-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background: rgba(24, 22, 21, .58);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .25s ease, visibility .25s ease;
+        }
+
+        .auth-modal.is-open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .auth-dialog {
+            position: relative;
+            width: min(100%, 440px);
+            padding: 36px;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: var(--paper);
+            box-shadow: 0 24px 70px rgba(24, 22, 21, .36);
+            transform: translateY(16px) scale(.98);
+            transition: transform .25s ease;
+        }
+
+        .auth-modal.is-open .auth-dialog {
+            transform: translateY(0) scale(1);
+        }
+
+        .auth-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 50%;
+            color: #fff;
+            background: rgba(169, 104, 73, .12);
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .auth-dialog h2 {
+            margin: 0 0 8px;
+            font-size: 38px;
+        }
+
+        .auth-dialog p {
+            margin-bottom: 24px;
+        }
+
+        .auth-form {
+            display: grid;
+            gap: 15px;
+        }
+
+        .auth-form label {
+            color: #332622;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .auth-form input {
+            width: 100%;
+            margin-top: 6px;
+            padding: 13px 14px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            color: #332622;
+            background: #fff;
+            font: inherit;
+        }
+
+        .auth-form input:focus {
+            outline: 2px solid var(--peach);
+            border-color: #a96849;
+        }
+
+        .auth-form .join-btn {
+            width: 100%;
+            margin-top: 8px;
+            border: 0;
+            cursor: pointer;
+        }
+
+        .auth-switch {
+            margin: 20px 0 0 !important;
+            text-align: center;
+        }
+
+        .auth-switch button {
+            border: 0;
+            padding: 0;
+            color: #a96849;
+            background: transparent;
+            cursor: pointer;
+            font: 600 13px var(--sans);
+        }
+
+        .login-dialog {
+            width: min(100%, 520px);
+            max-height: calc(100vh - 48px);
+            padding: 30px 42px;
+            color: #f8f6f3;
+            background: radial-gradient(circle at 50% 0%, rgba(169, 104, 73, .18), transparent 35%), #181615;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .login-dialog::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .login-dialog::-webkit-scrollbar-thumb {
+            background: rgba(237, 195, 170, .28);
+            border-radius: 999px;
+        }
+
+        .login-dialog::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .password-field {
+            position: relative;
+            display: block;
+        }
+
+        .password-field input {
+            padding-right: 48px !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            bottom: 10px;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            color: #d8c8bb;
+            background: transparent;
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 1;
+            transition: color .2s ease, background .2s ease, transform .2s ease;
+        }
+
+        .toggle-password:hover {
+            color: #edc3aa;
+            background: rgba(237, 195, 170, .10);
+            transform: scale(1.06);
+        }
+
+        .login-dialog .auth-close {
+            color: #edc3aa;
+            background: rgba(237, 195, 170, .12);
+        }
+
+        .login-brand-mark {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 70px;
+            margin: 0 auto 12px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .login-brand-mark img {
+            width: 80px;
+            height: 70px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .login-dialog h2 {
+            margin: 0 0 8px;
+            color: #f8f6f3;
+            font-size: 40px;
+            text-align: center;
+        }
+
+        .login-dialog > p {
+            margin: 0 0 28px;
+            color: #d8c8bb;
+            text-align: center;
+        }
+
+        .login-dialog .auth-form {
+            gap: 17px;
+        }
+
+        .login-dialog .auth-form label {
+            color: #f8f6f3;
+        }
+
+        .login-dialog .auth-form input {
+            margin-top: 7px;
+            padding: 14px;
+            border-color: #a96849;
+            color: #f8f6f3;
+            background: rgba(51, 38, 34, .54);
+        }
+
+        .login-dialog .auth-form input::placeholder {
+            color: #d8c8bb;
+        }
+
+        .login-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: #d8c8bb;
+            font-size: 13px;
+        }
+
+        .login-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-options input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            padding: 0;
+            flex: 0 0 auto;
+        }
+
+        .login-options a {
+            color: #edc3aa;
+            font-weight: 700;
+        }
+
+        .login-dialog .join-btn {
+            color: #332622;
+            background: linear-gradient(135deg, var(--peach), var(--peach-deep));
+        }
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+            color: #d8c8bb;
+            font-size: 13px;
+        }
+
+        .login-divider::before, 
+        .login-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .social-login {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .social-login button {
+            min-height: 46px;
+            border: 1px solid var(--peach-deep);
+            border-radius: 12px;
+            color: #edc3aa;
+            background: rgba(169, 104, 73, .14);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .social-login button:hover {
+            color: #332622;
+            background: #edc3aa;
+            transform: translateY(-2px);
+        }
+
+        .login-dialog .auth-switch {
+            color: #d8c8bb;
+        }
+
+        .login-dialog .auth-switch button {
+            color: #edc3aa;
+        }
+
+        .create-dialog {
+            width: min(100%, 1040px);
+            max-height: min(88vh, 760px);
+            display: grid;
+            grid-template-columns: .95fr 1.05fr;
+            padding: 0;
+            overflow: auto;
+            color: #f8f6f3;
+            background: linear-gradient(135deg, rgba(51, 38, 34, .96), rgba(24, 22, 21, .98));
+        }
+
+        .create-intro {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 100px 48px 56px;
+            background: linear-gradient(145deg, rgba(169, 104, 73, .22), rgba(24, 22, 21, .05));
+        }
+
+        .create-intro-brand {
+            position: absolute;
+            top: 28px;
+            left: 30px;
+            width: 62px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .create-intro-brand img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .create-intro .pill {
+            margin-bottom: 16px;
+            color: #edc3aa;
+        }
+
+        .create-intro h2 {
+            margin: 0 0 18px;
+            color: #f8f6f3;
+            font-size: clamp(42px, 5vw, 62px);
+            line-height: .9;
+        }
+
+        .create-intro h2 span {
+            color: #edc3aa;
+        }
+
+        .create-intro p {
+            max-width: 390px;
+            color: #d8c8bb;
+            font-size: 15px;
+        }
+
+        .benefits {
+            display: grid;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 15px;
+            border: 1px solid rgba(237, 195, 170, .5);
+            border-radius: 14px;
+            background: rgba(24, 22, 21, .34);
+        }
+
+        .benefit-mark {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            color: #f8f6f3;
+            background: #a96849;
+            font-weight: 700;
+        }
+
+        .benefit strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .benefit small {
+            color: #d8c8bb;
+        }
+
+        .create-form-panel {
+            padding: 42px 32px;
+            background: rgba(24, 22, 21, .52);
+        }
+
+        .create-form-panel h3 {
+            margin: 12px 0 4px;
+            color: #f8f6f3;
+            font: 600 34px var(--serif);
+            text-align: center;
+        }
+
+        .create-form-panel > p {
+            margin: 0 0 24px;
+            color: #d8c8bb;
+            text-align: center;
+        }
+
+        .create-form-panel .auth-form {
+            grid-template-columns: 1fr 1fr;
+            gap: 13px 16px;
+        }
+
+        .create-form-panel .auth-form label {
+            color: #f8f6f3;
+        }
+
+        .create-form-panel .auth-form input, 
+        .create-form-panel .auth-form select {
+            width: 100%;
+            margin-top: 6px;
+            padding: 12px;
+            border: 1px solid var(--peach-deep);
+            border-radius: 10px;
+            color: #f8f6f3;
+            background: rgba(24, 22, 21, .78);
+            font: inherit;
+        }
+
+        .create-form-panel .auth-form input:focus, 
+        .create-form-panel .auth-form select:focus {
+            outline: 2px solid var(--peach);
+        }
+
+        .create-form-panel .auth-form select option {
+            background: #332622;
+            color: #f8f6f3;
+        }
+
+        .create-form-panel .auth-form select option:disabled {
+            background: #332622;
+            color: #d8c8bb;
+        }
+
+        .create-form-panel .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .terms {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #d8c8bb;
+            font-size: 12px;
+        }
+
+        .terms input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            padding: 0;
+            flex: 0 0 auto;
+        }
+
+        .create-form-panel .join-btn {
+            color: #332622;
+            background: linear-gradient(135deg, var(--peach), var(--peach-deep));
+        }
+
+        @media (max-width: 760px) {
+            .create-dialog {
+                grid-template-columns: 1fr;
+                max-height: 90vh;
+            }
+            .create-intro {
+                padding: 90px 30px 36px;
+            }
+            .create-intro-brand {
+                top: 22px;
+                left: 24px;
+                width: 52px;
+                height: 52px;
+            }
+            .create-intro h2 {
+                font-size: 44px;
+            }
+            .benefits {
+                display: none;
+            }
+            .create-form-panel {
+                padding: 32px 24px;
+            }
+        }
+
+        @media (max-width: 460px) {
+            .create-form-panel .auth-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Authentication modals must stay viewport overlays. api.js applies body > * positioning on some pages; these rules are intentionally scoped to this page. */
+        .auth-modal {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 10000 !important;
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            transform: none !important;
+        }
+
+        .auth-modal.is-open {
+            display: grid !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="theme-transition-layer" id="themeTransitionLayer" aria-hidden="true"></div>
+
+    <section class="hero" id="hero-section">
+        <img class="hero-animal" src="../assets/hero-section.png" alt="Hero Animal">
+        
+        <header class="navbar shell">
+            <a class="brand" href="../index.html"><img src="../assets/web-logo-2.png" alt="PawAI logo" class="logo-image"></a>
+            <div class="nav-right">
+                <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to light mode" title="Switch to light mode">
+                    <i class="fa-solid fa-sun theme-icon theme-icon-light"></i>
+                    <span class="theme-toggle-thumb" aria-hidden="true"></span>
+                    <i class="fa-solid fa-moon theme-icon theme-icon-dark"></i>
+                </button>
+                <button type="button" class="join-btn" data-open-modal="create">Get Started<i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </header>
+        
+        <div class="shell hero-copy">
+            <span class="hero-pre">Understand what your Dog is telling you.</span>
+            <h1>Every movement<br>has a story<br>to tell.</h1>
+            <p class="hero-p">Point a camera at your dog. PawAI listens to the barks, reads the body language, and explains the mood in a live chat.</p>
+            <button type="button" class="join-btn" data-open-modal="create">Start Your Journey Now <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </section>
+    
+    <main>
+        <section id="features-section">
+            <div class="features-visual">
+                <img src="../assets/feature-section.png" alt="Pet behavior analysis">
+            </div>
+
+            <div class="unique-features">
+                <div class="feature-intro">
+                    <span class="pill">Why PawAI</span>
+                    <h2>A friendlier way to<br>understand care.</h2>
+                </div>
+
+                <div class="feature-entry">
+                    <div class="feature-header">
+                        <span class="feature-tag">System 01</span>
+                        <h3>Behavior Analysis</h3>
+                    </div>
+                    <p>Decipher practical mood and behavior cues from photos and video moments.</p>
+                </div>
+
+                <div class="feature-entry">
+                    <div class="feature-header">
+                        <span class="feature-tag">System 02</span>
+                        <h3>PawBot Chat</h3>
+                    </div>
+                    <p>Ask follow-up questions via voice and get simple, friendly explanations.</p>
+                </div>
+
+                <div class="feature-entry">
+                    <div class="feature-header">
+                        <span class="feature-tag">System 03</span>
+                        <h3>Care History</h3>
+                    </div>
+                    <p>Connected insights that help you notice long-term health patterns easily.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="steps" id="steps-section">
+            <div class="shell">
+                <span class="pill">Easy Process</span>
+                <h2>How it works</h2>
+
+                <div class="steps-list">
+                    <article class="step-item">
+                        <img class="step-dog" src="../assets/card-hover-1.png" alt="Dog popup">
+                        <div class="step-number">01</div>
+                        <div class="step-info">
+                            <h4>Create your pet profile</h4>
+                            <p>Add basic details so PawAI can personalize the experience for your specific companion.</p>
+                        </div>
+                    </article>
+
+                    <article class="step-item">
+                        <img class="step-dog" src="../assets/card-hover-1.png" alt="Dog popup">
+                        <div class="step-number">02</div>
+                        <div class="step-info">
+                            <h4>Share a moment</h4>
+                            <p>Use camera, audio, or gallery uploads directly from the dashboard for instant processing.</p>
+                        </div>
+                    </article>
+
+                    <article class="step-item">
+                        <img class="step-dog" src="../assets/card-hover-1.png" alt="Dog popup">
+                        <div class="step-number">03</div>
+                        <div class="step-info">
+                            <h4>Ask PawBot</h4>
+                            <p>Turn complex behavior analysis results into clear, actionable next steps and care ideas.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <div class="auth-modal" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-hidden="true">
+        <div class="auth-dialog login-dialog">
+            <button class="auth-close" type="button" aria-label="Close login dialog">&times;</button>
+            <div class="login-brand-mark" aria-hidden="true">
+                <img src="../assets/web-logo-2.png" alt="">
+            </div>
+            <h2 id="loginModalTitle">Welcome Back!</h2>
+            <p>Login to continue your PawAI journey.</p>
+            
+            <form id="loginForm" class="auth-form" data-auth-form novalidate>
+                <label for="loginId">Username or Email
+                    <input id="loginId" name="loginId" type="text" placeholder="Enter your username or email" autocomplete="username" required>
+                </label>
+                <label for="loginPassword">Password
+                    <span class="password-field">
+                        <input id="loginPassword" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+                        <button id="togglePassword" class="toggle-password" type="button" aria-label="Show password" title="Show password">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </span>
+                </label>
+                <div class="login-options">
+                    <label><input type="checkbox">Remember me</label>
+                    <a class="forgot-link" href="#" data-action="Forgot password UI only. Connect OTP or backend flow later.">Forgot password?</a>
+                </div>
+                <button class="join-btn" type="submit">Login</button>
+                <div id="loginFormMessage" class="auth-message" role="status" aria-live="polite"></div>
+            </form>
+            
+            <div class="login-divider">or continue with</div>
+            
+            <div class="social-login" aria-label="Social login options">
+                <button type="button" aria-label="Continue with Google"><i class="fa-brands fa-google"></i></button>
+                <button type="button" aria-label="Continue with Apple"><i class="fa-brands fa-apple"></i></button>
+                <button type="button" aria-label="Continue with Facebook"><i class="fa-brands fa-facebook"></i></button>
+            </div>
+            
+            <p class="auth-switch">New to PawAI? <button type="button" data-open-modal="create">Create an account</button></p>
+        </div>
+    </div>
+    
+    <div class="auth-modal" id="createModal" role="dialog" aria-modal="true" aria-labelledby="createModalTitle" aria-hidden="true">
+        <div class="auth-dialog create-dialog">
+            <button class="auth-close" type="button" aria-label="Close create account dialog">&times;</button>
+            
+            <section class="create-intro">
+                <div class="create-intro-brand" aria-hidden="true">
+                    <img src="../assets/web-logo-2.png" alt="">
+                </div>
+                <span class="pill">Pet-first AI</span>
+                <h2 id="createModalTitle">Create your<br><span>PawAI account.</span></h2>
+                <p>Understand your pet better with AI-powered behavior analysis, history, and a personal pet assistant.</p>
+                <div class="benefits">
+                    <div class="benefit">
+                        <span class="benefit-mark">AI</span>
+                        <div>
+                            <strong>AI-powered insights</strong>
+                            <small>Analyze video, audio, and images.</small>
+                        </div>
+                    </div>
+                    <div class="benefit">
+                        <span class="benefit-mark">PB</span>
+                        <div>
+                            <strong>PawBot assistant</strong>
+                            <small>Ask questions about your pet anytime.</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="create-form-panel">
+                <h3>Create Account</h3>
+                <p>Let's create your pet's profile</p>
+                
+                <form id="accountForm" class="auth-form" data-auth-form novalidate>
+                    <!-- <label>Owner name<input type="text" name="ownerName" placeholder="e.g. Animes" required></label> -->
+                    <label>Pet name<input id="petName" name="petName" type="text" placeholder="e.g. Bruno" required></label>
+                    <label>Breed<input id="breed" name="breed" type="text" placeholder="e.g. Golden Retriever" required></label>
+                    <label>Age<input id="age" name="age" type="text" placeholder="e.g. 2 years" required></label>
+                    <label for="gender">Gender
+                        <select id="gender" name="gender" required>
+                            <option value="" selected disabled hidden>Select gender</option>
+                            <option>Female</option>
+                            <option>Male</option>
+                            <option>Other</option>
+                        </select>
+                    </label>
+                    <label>Email address<input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required></label>
+                    <label>Create user ID<input id="userId" name="userId" type="text" placeholder="bruno_love" autocomplete="username" required></label>
+                    <label>Password<input id="accountPassword" name="password" type="password" placeholder="Create password" autocomplete="new-password" minlength="8" required></label>
+                    <label>Confirm password<input id="confirmPassword" name="confirmPassword" type="password" placeholder="Confirm password" autocomplete="new-password" minlength="8" required></label>
+                    
+                    <label class="terms full-width" for="terms">
+                        <input id="terms" name="terms" type="checkbox" required>I agree to the Terms &amp; Privacy Policy
+                    </label>
+                    
+                    <button class="join-btn full-width" type="submit">Create Account</button>
+                <div id="createFormMessage" class="auth-message full-width" role="status" aria-live="polite"></div>
+                </form>
+                
+                <p class="auth-switch">Already have an account? <button type="button" data-open-modal="login">Login</button></p>
+            </section>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="shell footer-inner">
+            <div class="footer-copy">
+                <p>&copy; 2026 PawAI</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="theme.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script>
+        // api.js contains a shared application-theme injector used by other pages.
+        // landing-page.html uses theme.js/theme.css, so remove only that injected
+        // presentation layer after api.js loads; the API functions remain available.
+        const sharedThemeStyle = document.getElementById('pawai-shared-theme');
+        if (sharedThemeStyle) sharedThemeStyle.remove();
+        document.documentElement.removeAttribute('data-pawai-theme-active');
+        document.documentElement.removeAttribute('data-pawai-high-contrast');
+        document.documentElement.removeAttribute('data-pawai-reduce-motion');
+        document.documentElement.style.removeProperty('zoom');
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        const authModals = document.querySelectorAll('.auth-modal');
+        
+        const closeAuthModals = () => {
+            const active = document.activeElement;
+            if (active && active.closest('.auth-modal')) active.blur();
+            authModals.forEach((modal) => {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+            });
+        };
+        
+        document.querySelectorAll('[data-open-modal]').forEach((trigger) => {
+            trigger.addEventListener('click', () => {
+                const modal = document.getElementById(trigger.dataset.openModal === 'login' ? 'loginModal' : 'createModal');
+                if (!modal) return;
+                closeAuthModals();
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+            });
+        });
+        
+        document.querySelectorAll('.auth-close').forEach((button) => {
+            button.addEventListener('click', closeAuthModals)
+        });
+        
+        authModals.forEach((modal) => {
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) closeAuthModals();
+            })
+        });
+        
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeAuthModals();
+        });
+        
+
+        const loginForm = document.querySelector('#loginForm');
+        const loginId = document.querySelector('#loginId');
+        const loginPassword = document.querySelector('#loginPassword');
+        const togglePassword = document.querySelector('#togglePassword');
+        const loginFormMessage = document.querySelector('#loginFormMessage');
+        const forgotLink = document.querySelector('.forgot-link');
+        const accountForm = document.querySelector('#accountForm');
+        const createFormMessage = document.querySelector('#createFormMessage');
+
+        function showAuthMessage(element, type, text) {
+            if (!element) return;
+            element.textContent = text;
+            element.className = `auth-message ${type} show`;
+        }
+
+        function getFirstInvalidField(form) {
+            return Array.from(form.elements).find((field) => field.willValidate && !field.checkValidity());
+        }
+
+        togglePassword?.addEventListener('click', () => {
+            const isHidden = loginPassword.type === 'password';
+            loginPassword.type = isHidden ? 'text' : 'password';
+            togglePassword.innerHTML = `<i class="fa-solid ${isHidden ? 'fa-eye-slash' : 'fa-eye'}" aria-hidden="true"></i>`;
+            togglePassword.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            togglePassword.setAttribute('title', isHidden ? 'Hide password' : 'Show password');
+        });
+
+        forgotLink?.addEventListener('click', (event) => {
+            event.preventDefault();
+            showAuthMessage(loginFormMessage, 'success', forgotLink.dataset.action);
+        });
+
+        loginForm?.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const invalidField = getFirstInvalidField(loginForm);
+            if (invalidField) {
+                invalidField.focus();
+                showAuthMessage(loginFormMessage, 'error', 'Please enter a valid username/email and password.');
+                return;
+            }
+            try {
+                await PawAIApi.login(loginId.value.trim(), loginPassword.value);
+                showAuthMessage(loginFormMessage, 'success', 'Login successful. Opening your Dog home page.');
+                window.location.href = 'home.html';
+            } catch (error) {
+                showAuthMessage(loginFormMessage, 'error', error instanceof PawAIApi.ApiError ? error.message : 'Login failed. Please try again.');
+            }
+        });
+
+        accountForm?.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const invalidField = getFirstInvalidField(accountForm);
+            const password = accountForm.password.value.trim();
+            const confirmPassword = accountForm.confirmPassword.value.trim();
+            if (invalidField) {
+                invalidField.focus();
+                showAuthMessage(createFormMessage, 'error', 'Please complete all required fields correctly.');
+                return;
+            }
+            if (password !== confirmPassword) {
+                accountForm.confirmPassword.focus();
+                showAuthMessage(createFormMessage, 'error', 'Password and confirm password must match.');
+                return;
+            }
+            try {
+                await PawAIApi.register({
+                    email: accountForm.email.value.trim(),
+                    username: accountForm.userId.value.trim(),
+                    password,
+                    pet: {
+                        name: accountForm.petName.value.trim(),
+                        breed: accountForm.breed.value.trim() || null,
+                        age: accountForm.age.value.trim() || null,
+                        gender: accountForm.gender.value,
+                        species: 'dog'
+                    }
+                });
+                showAuthMessage(createFormMessage, 'success', 'Account created. Opening your Dog home page.');
+                window.location.href = 'home.html';
+            } catch (error) {
+                showAuthMessage(createFormMessage, 'error', error instanceof PawAIApi.ApiError ? error.message : 'Account creation failed. Please try again.');
+            }
+        });
+
+        if (window.gsap) {
+            gsap.registerPlugin(ScrollTrigger);
+            
+            gsap.from('.hero-copy > *', { 
+                opacity: 0, 
+                y: 24, 
+                stagger: .12, 
+                duration: .8, 
+                ease: 'power2.out' 
+            });
+            
+            gsap.from('.features-visual', {
+                opacity: 0,
+                x: -80,
+                duration: 1,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: '#features-section',
+                    start: 'top 75%'
+                }
+            });
+
+            gsap.from('.unique-features > *', {
+                opacity: 0,
+                x: 80,
+                stagger: 0.15,
+                duration: 0.8,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: '#features-section',
+                    start: 'top 75%'
+                }
+            });
+            
+            gsap.from('.step-item', { 
+                opacity: 0, 
+                y: 28, 
+                stagger: .14, 
+                duration: .65, 
+                scrollTrigger: { 
+                    trigger: '.steps-list', 
+                    start: 'top 78%' 
+                } 
+            });
+        }
+
+    </script>
+</body>
+</html>

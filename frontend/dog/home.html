@@ -1,0 +1,1613 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home - PawAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="theme.css">
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap");
+        
+        :root {
+            --ink: #332622;
+            --deep: #181615;
+            --paper: #f8f6f3;
+            --warm: #dabf89;
+            --peach: #edc3aa;
+            --peach-deep: #a96849;
+            --line: #d8c8bb;
+            --muted: #6f625c;
+            --serif: "Poppins", Arial, sans-serif;
+            --sans: "Open Sans", Arial, sans-serif;
+            --glass: rgba(250, 246, 241, 0.94);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: var(--sans);
+            overflow: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            z-index: 1000;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 0 5%;
+            background: transparent;
+            border-bottom: 1px solid transparent;
+            color: #f8f2ec;
+            transition: background .35s ease, border-color .35s ease, backdrop-filter .35s ease, box-shadow .35s ease;
+        }
+
+        .navbar.scrolled {
+            background: linear-gradient(100deg, #362824, #171717);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, .12);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .logo-image {
+            width: 85px;
+            height: 52px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-actions {
+            justify-self: end;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 38px;
+        }
+
+        .nav-link {
+            color: #f8f2ec;
+            font-size: 13px;
+            font-weight: 700;
+            transition: color .2s ease, transform .2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--peach);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            color: var(--peach);
+            position: relative;
+        }
+
+        .nav-link.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -8px;
+            height: 2px;
+            background: var(--peach);
+            border-radius: 2px;
+        }
+
+        .utility-link {
+            display: grid;
+            place-items: center;
+            width: 24px;
+            height: 24px;
+            color: var(--peach);
+            font-size: 17px;
+            transition: color .2s ease, transform .2s ease;
+        }
+
+        .utility-link:hover {
+            color: var(--paper);
+            transform: translateY(-1px);
+        }
+
+        /* ---------- dark / light theme ---------- */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid rgba(237,195,170,.48);
+            border-radius: 999px;
+            background: rgba(255,255,255,.075);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            overflow: hidden;
+            flex: 0 0 auto;
+            isolation: isolate;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 4px 14px rgba(0,0,0,.10);
+            transition: background .45s ease, border-color .45s ease, box-shadow .45s ease, transform .25s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: rgba(237,195,170,.78);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 6px 20px rgba(0,0,0,.16);
+            transform: translateY(-1px);
+        }
+
+        .theme-toggle:active {
+            transform: scale(.97);
+        }
+
+        .theme-icon {
+            position: relative;
+            z-index: 3;
+            width: 30px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            font-size: 10px;
+            line-height: 1;
+            pointer-events: none;
+            transition: color .4s ease, opacity .4s ease, transform .4s ease;
+        }
+
+        .theme-icon-light {
+            color: #b9aaa1;
+            opacity: .65;
+        }
+
+        .theme-icon-dark {
+            color: #332622;
+            opacity: 1;
+        }
+
+        .theme-toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #dabf89;
+            box-shadow: 0 3px 10px rgba(0,0,0,.24), inset 0 1px 1px rgba(255,255,255,.28);
+            transition: transform .55s cubic-bezier(.16,1,.3,1), background .45s ease, box-shadow .45s ease;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        body, .navbar, #hero-section, #hero-section::after, #hero-section .glass-box, .audio-recorder-panel, .message, .upload-preview, .primary-btn, .hero-ghost-btn, .nav-link, .utility-link {
+            transition: background .55s ease, color .45s ease, border-color .45s ease, box-shadow .45s ease, opacity .45s ease;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .theme-toggle, .theme-toggle-thumb, .theme-icon, body, .navbar, #hero-section, #hero-section::after, #hero-section .glass-box, .audio-recorder-panel, .message, .upload-preview, .primary-btn, .hero-ghost-btn, .nav-link, .utility-link {
+                transition: none !important;
+            }
+        }
+
+        .profile-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .logout-btn {
+            color: #e10303f8 !important;
+        }
+
+        .page {
+            position: relative;
+            width: 100%;
+            margin: 0;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-box {
+            padding: 42px;
+            border-radius: 18px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 8px 16px;
+            border: 1px solid var(--peach-deep);
+            border-radius: 999px;
+            color: #75432f;
+            background: rgba(237, 195, 170, .10);
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--serif);
+            color: var(--ink);
+        }
+
+        h1 {
+            font-size: clamp(48px, 6vw, 78px);
+            line-height: .88;
+            margin: 14px 0 18px;
+        }
+
+        h2 {
+            font-size: clamp(34px, 4vw, 48px);
+            line-height: .95;
+            margin: 10px 0 16px;
+        }
+
+        p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.75;
+        }
+
+        /* HERO */
+        #hero-section {
+            min-height: 100svh;
+            align-items: flex-start;
+            justify-content: center;
+            padding: clamp(88px, 10vh, 108px) 8% 32px;
+            background: radial-gradient(circle at 30% 40%, #523a30 0, #302522 37%, #181817 73%);
+            color: #fffaf6;
+            isolation: isolate;
+        }
+
+        #hero-section::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: linear-gradient(90deg, rgba(25, 20, 18, .28), transparent 60%), linear-gradient(0deg, rgba(12, 12, 12, .25), transparent 52%);
+            pointer-events: none;
+        }
+
+        #hero-section .hero-animal {
+            position: absolute;
+            right: 8%;
+            bottom: 0;
+            z-index: 1;
+            width: min(44vw, 560px);
+            height: 78%;
+            object-fit: contain;
+            object-position: center bottom;
+            mix-blend-mode: screen;
+            opacity: .88;
+            filter: contrast(.92) sepia(.1);
+            pointer-events: none;
+        }
+
+        #hero-section .glass-box {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            padding: 30px;
+            background: transparent;
+        }
+
+        #hero-section .pill {
+            color: var(--peach);
+            border-color: var(--peach-deep);
+        }
+
+        #hero-section h1,
+        #hero-section p {
+            color: #fffaf6;
+        }
+
+        #hero-section p {
+            color: #e0d8d2;
+        }
+
+        .audio-recorder-panel {
+            width: min(100%, 620px);
+            min-height: 58px;
+            margin-top: 14px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(237,195,170,.18);
+            border-radius: 14px;
+            background: rgba(28,23,21,.82);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 8px 24px rgba(0,0,0,.14);
+            backdrop-filter: blur(12px);
+        }
+
+        .audio-recorder-panel[hidden] {
+            display: none !important;
+        }
+
+        .audio-control,
+        .audio-submit {
+            flex: 0 0 auto;
+            border: 0;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: transform .2s ease, background .25s ease, color .25s ease;
+        }
+
+        .audio-control {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: transparent;
+            color: #b9aaa1;
+            font-size: 13px;
+        }
+
+        .audio-control:hover {
+            color: var(--peach);
+            background: rgba(237,195,170,.08);
+            transform: translateY(-1px);
+        }
+
+        .audio-control.delete:hover {
+            color: #c85b4a;
+        }
+
+        .audio-recording-dot {
+            width: 9px;
+            height: 9px;
+            flex: 0 0 9px;
+            border-radius: 50%;
+            background: #ef8f9f;
+            box-shadow: 0 0 0 4px rgba(239,143,159,.08);
+            animation: audioDotPulse 1.25s ease-in-out infinite;
+        }
+
+        .audio-timer {
+            min-width: 42px;
+            color: #f8f2ec;
+            font-variant-numeric: tabular-nums;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .audio-wave-wrap {
+            position: relative;
+            flex: 1 1 auto;
+            min-width: 150px;
+            height: 46px;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        #audio-waveform {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .audio-submit {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #28c76f;
+            color: #10251a;
+            font-size: 14px;
+            box-shadow: 0 5px 16px rgba(40,199,111,.22);
+        }
+
+        .audio-submit:hover {
+            transform: scale(1.05);
+            background: #34d77d;
+        }
+
+        .audio-control:disabled,
+        .audio-submit:disabled {
+            cursor: wait;
+            opacity: .55;
+            transform: none;
+        }
+
+        .audio-recorder-panel.is-paused {
+            border-color: rgba(218,191,137,.34);
+        }
+
+        .audio-recorder-panel.is-paused .audio-recording-dot {
+            animation-play-state: paused;
+            opacity: .45;
+        }
+
+        @keyframes audioDotPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(.72); opacity: .48; }
+        }
+
+        @media (max-width: 620px) {
+            .audio-recorder-panel { gap: 7px; padding: 7px; }
+            .audio-wave-wrap { min-width: 65px; }
+        }
+
+        .analysis-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .analysis-actions button {
+            white-space: nowrap;
+        }
+
+        .analysis-actions button:disabled {
+            opacity: .42;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .analysis-actions [hidden] {
+            display: none !important;
+        }
+
+        .recording-active {
+            border-color: #c85b4a !important;
+            color: #c85b4a !important;
+        }
+
+        .recording-active i {
+            animation: recordingPulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes recordingPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .55; transform: scale(.82); }
+        }
+
+        .upload-preview {
+            display: none;
+            margin-top: 16px;
+            padding: 11px 13px;
+            border: 1px solid var(--peach-deep);
+            border-radius: 9px;
+            background: rgba(237, 195, 170, .08);
+            color: #f8f2ec;
+            font-size: 13px;
+        }
+
+        .primary-btn,
+        .hero-ghost-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 13px 22px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: .3s ease;
+        }
+
+        .primary-btn {
+            background: var(--peach);
+            color: var(--ink);
+            border: 1px solid var(--peach);
+        }
+
+        .primary-btn:hover {
+            background: #ffa974;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .18);
+        }
+
+        .hero-ghost-btn {
+            color: var(--peach);
+            border: 1px solid var(--peach);
+            background: transparent;
+        }
+
+        .hero-ghost-btn:hover {
+            background: rgba(237, 195, 170, .12);
+            transform: translateY(-3px);
+        }
+
+        .camera-preview-wrap {
+            position: absolute;
+            left: 0;
+            top: 365px;
+            width: 100%;
+            height: 240px;
+            display: none;
+        }
+
+        #capture-card.camera-active .camera-preview-wrap {
+            display: block;
+        }
+
+        .camera-preview-wrap #video-preview {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            display: block;
+        }
+
+        .camera-discard-btn {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            z-index: 6;
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            background: rgba(28,23,21,.82);
+            color: #f8f2ec;
+            box-shadow: 0 5px 16px rgba(0,0,0,.24);
+            backdrop-filter: blur(8px);
+            transition: transform .2s ease, background .2s ease, color .2s ease;
+        }
+
+        .camera-discard-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(200,91,74,.92);
+            color: #fff;
+        }
+
+        .camera-discard-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #video-preview {
+            display: none;
+            width: 100%;
+            height: min(34svh, 300px);
+            max-height: min(34svh, 300px);
+            object-fit: cover;
+            border-radius: 14px;
+            margin-top: 14px;
+            border: 1px solid var(--peach-deep);
+            background: #111;
+        }
+
+        /* Camera-open layout */
+        #capture-card.camera-active {
+            position: relative;
+            transform: translateY(-92px);
+            transition: transform .35s ease;
+        }
+
+        #capture-card.camera-active .camera-preview-wrap {
+            top: 365px;
+            height: 240px;
+        }
+
+        #capture-card.camera-active #video-preview {
+            max-height: none;
+            box-sizing: border-box;
+        }
+
+        #capture-card.camera-active .analysis-actions {
+            position: static;
+        }
+
+        #capture-card.camera-active .video-workflow-btn {
+            position: absolute;
+            top: 530px;
+            right: 6px;
+            margin: 0;
+            z-index: 5;
+        }
+
+        #capture-card.camera-active #stop-video-btn {
+            right: 0;
+            margin: 0;
+        }
+
+        /* Record Video: greenish tone */
+        #record-video-btn {
+            background: #d9eadf;
+            border-color: #5f9f78;
+            color: #285b3b;
+        }
+
+        #record-video-btn:hover {
+            background: #c6dfcf;
+            border-color: #4c8c66;
+            color: #214d32;
+        }
+
+        /* Stop & Submit: reddish tone */
+        #stop-video-btn {
+            background: #f0d0ca;
+            border-color: #b85c50;
+            color: #7d3028;
+        }
+
+        #stop-video-btn:hover {
+            background: #e8bcb5;
+            border-color: #a84b40;
+            color: #6d2721;
+        }
+
+        #record-video-btn.recording-active {
+            background: #c6dfcf !important;
+            border-color: #4c8c66 !important;
+            color: #285b3b !important;
+        }
+
+        @media (max-height: 760px) {
+            #capture-card.camera-active {
+                transform: translateY(-72px);
+            }
+            #capture-card.camera-active .camera-preview-wrap {
+                height: 210px;
+            }
+            #capture-card.camera-active #video-preview {
+                height: 210px;
+            }
+        }
+
+        @media (max-width: 760px) {
+            #capture-card.camera-active {
+                transform: translateY(-48px);
+            }
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+            background: rgba(237, 195, 170, .10);
+            color: #f8f2ec;
+            border: 1px solid var(--peach-deep);
+        }
+
+        footer {
+            width: 100%;
+            height: 30px;
+            padding: 32px 8%;
+            color: #d4c5bb;
+            background: linear-gradient(100deg, #362824, #171717);
+            border-top: 1px solid rgba(237, 195, 170, .15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer a {
+            color: var(--peach);
+            transition: .3s ease;
+        }
+
+        footer a:hover {
+            color: #f5eee9;
+            transform: translateY(-2px);
+        }
+
+        .media-input {
+            display: none;
+        }
+
+        @media (max-width: 760px) {
+            .navbar {
+                padding: 0 24px;
+            }
+            .nav-links {
+                gap: 20px;
+            }
+            .nav-actions {
+                gap: 12px;
+            }
+            .nav-link {
+                font-size: 12px;
+            }
+            section {
+                min-height: auto;
+                padding-top: 110px !important;
+                padding-bottom: 80px !important;
+            }
+            #hero-section {
+                min-height: 100vh;
+                padding-left: 24px !important;
+                padding-right: 24px !important;
+            }
+            #hero-section .hero-animal {
+                right: -12%;
+                width: 70vw;
+                height: 52%;
+                opacity: .55;
+            }
+            .glass-box {
+                padding: 28px;
+            }
+            footer {
+                padding: 28px 24px;
+                gap: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <a class="brand" href="home.html" aria-label="PawAI home">
+            <img src="../assets/web-logo-2.png" alt="PawAI logo" class="logo-image">
+        </a>
+
+        <nav class="nav-links" aria-label="Primary navigation">
+            <a href="#hero-section" class="nav-link active">Home</a>
+            <a href="chatbot.html" class="nav-link">PawBot</a>
+            <a href="08-help.html" class="nav-link">Help</a>
+            <a href="07-contact.html" class="nav-link">Contact</a>
+        </nav>
+
+        <div class="nav-actions">
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to light mode" title="Switch to light mode">
+                <i class="fa-solid fa-sun theme-icon theme-icon-light"></i>
+                <span class="theme-toggle-thumb" aria-hidden="true"></span>
+                <i class="fa-solid fa-moon theme-icon theme-icon-dark"></i>
+            </button>
+
+            <a class="utility-link" href="#" aria-label="Notifications">
+                <i class="fa-regular fa-bell"></i>
+            </a>
+            <a class="utility-link" href="05-settings.html" aria-label="Settings">
+                <i class="fa-solid fa-gear"></i>
+            </a>
+
+            <a class="utility-link" href="my-account.html" aria-label="My Account">
+                <i class="fa-solid fa-user"></i>
+            </a>
+
+            <a class="utility-link logout-btn" href="landing-page.html" aria-label="Logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="page">
+        <!-- HERO SECTION -->
+        <section id="hero-section">
+            <img class="hero-animal" src="../assets/hero-section.png" alt="PawAI pet companion">
+            <div class="glass-box" id="capture-card">
+                <span class="pill">AI-powered pet care dashboard</span>
+                <h1>Hello,<br><span class="brand-accent" id="pet-name">Bruno.</span></h1>
+                <p>Record a moment, upload a sound, or choose a photo. PawAI turns your dog's mood and behavior cues into calm, practical guidance.</p>
+                <div class="analysis-actions">
+                    <button class="primary-btn" id="start-camera-btn">
+                        <i class="fa-solid fa-camera"></i>
+                        Start Camera
+                    </button>
+
+                    <button class="hero-ghost-btn" id="upload-media-btn">
+                        <i class="fa-solid fa-upload"></i>
+                        Upload Media
+                    </button>
+
+                    <button class="hero-ghost-btn" id="record-audio-btn">
+                        <i class="fa-solid fa-microphone"></i>
+                        Record Audio
+                    </button>
+
+                    <button class="hero-ghost-btn" id="record-video-btn">
+                        <i class="fa-solid fa-video"></i>
+                        Start Live Chat
+                    </button>
+
+                    <button class="hero-ghost-btn workflow-btn video-workflow-btn" id="record-video-btn" hidden>
+                        <i class="fa-solid fa-circle"></i>
+                        Record Video
+                    </button>
+
+                    <button class="hero-ghost-btn workflow-btn video-workflow-btn" id="stop-video-btn" hidden>
+                        <i class="fa-solid fa-stop"></i>
+                        Stop & Submit
+                    </button>
+
+                    <button class="hero-ghost-btn workflow-btn" id="stop-audio-btn" hidden>
+                        <i class="fa-solid fa-stop"></i>
+                        Stop & Submit
+                    </button>
+                </div>
+
+                <div class="audio-recorder-panel" id="audio-recorder-panel" hidden>
+                    <button class="audio-control delete" id="discard-audio-btn" type="button" title="Discard recording" aria-label="Discard recording">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <span class="audio-recording-dot" aria-hidden="true"></span>
+                    <span class="audio-timer" id="audio-timer">0:00</span>
+                    <div class="audio-wave-wrap">
+                        <canvas id="audio-waveform" aria-label="Live audio waveform"></canvas>
+                    </div>
+                    <button class="audio-control pause" id="pause-audio-btn" type="button" title="Pause recording" aria-label="Pause recording">
+                        <i class="fa-solid fa-pause" id="pause-audio-icon"></i>
+                    </button>
+                    <button class="audio-submit" id="submit-audio-btn" type="button" title="Stop and submit recording" aria-label="Stop and submit recording">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+
+                <div class="camera-preview-wrap">
+                    <video id="video-preview" autoplay playsinline muted></video>
+                    <button id="discard-camera-btn" class="camera-discard-btn" type="button" title="Discard camera" aria-label="Discard camera">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+                <div id="upload-preview" class="upload-preview"></div>
+                <div id="homeMessage" class="message"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Hidden file input for "Upload Media" -->
+    <input id="galleryInput" class="media-input" type="file" accept="image/*,video/*">
+
+    <script src="../assets/js/api.js"></script>
+    <script>
+        // api.js provides the backend API, but its shared application theme must
+        // not override this page's own theme.css/theme.js styling.
+        const sharedThemeStyle = document.getElementById('pawai-shared-theme');
+        if (sharedThemeStyle) sharedThemeStyle.remove();
+
+        document.documentElement.removeAttribute('data-pawai-theme-active');
+        document.documentElement.removeAttribute('data-pawai-high-contrast');
+        document.documentElement.removeAttribute('data-pawai-reduce-motion');
+
+        [
+            '--bg',
+            '--panel',
+            '--field',
+            '--line',
+            '--line-strong',
+            '--text',
+            '--muted',
+            '--pink',
+            '--pink-soft',
+            '--primary',
+            '--button',
+            '--button-text',
+            '--pawai-page-background',
+            '--pawai-panel-tint',
+            '--pawai-button-soft',
+            '--pawai-primary-glow',
+            '--pawai-accent-glow',
+            '--pawai-ui-scale'
+        ].forEach((property) => document.documentElement.style.removeProperty(property));
+
+        document.documentElement.style.removeProperty('zoom');
+    </script>
+    <script src="theme.js"></script>
+    <script>
+        let activeDogPet = null;
+
+        (async function initialiseDogHome() {
+            const user = await PawAIAuth.requireUser({ loginPage: '02-login.html' });
+            if (!user) return;
+            PawAIAuth.bindLogout('#logoutLink', { loginPage: '../index.html' });
+
+            const petName = document.getElementById('pet-name');
+            const heroText = document.querySelector('#capture-card p');
+
+            try {
+                const pets = await PawAIApi.listPets();
+                activeDogPet = pets.find((pet) => pet.species === 'dog') || null;
+
+                if (!activeDogPet) {
+                    if (petName) petName.textContent = `${user.username}.`;
+                    return;
+                }
+
+                if (petName) petName.textContent = `${activeDogPet.name}.`;
+                if (heroText) {
+                    const details = [activeDogPet.breed, activeDogPet.age, activeDogPet.gender]
+                        .filter(Boolean)
+                        .join(' · ');
+                    heroText.textContent = `Record a moment, upload a video, or choose a file. PawAI will analyse ${activeDogPet.name}'s mood${details ? ` (${details})` : ''}.`;
+                }
+            } catch (error) {
+                if (petName) petName.textContent = `${user.username}.`;
+            }
+        })();
+
+        // -----------------------------------------------------------------
+        // UPLOAD + REDIRECT  (shared by all media paths)
+        // -----------------------------------------------------------------
+        // Uploads `file` to the backend, obtains the real media_id from the
+        // response, then redirects to status.html?media_id=<id>.
+        // On upload failure the error is shown on this page and we stay here.
+        async function uploadAndRedirect(file) {
+            const petId = activeDogPet ? activeDogPet.id : null;
+
+            showHomeMessage('Uploading to PawAI…');
+
+            let uploaded;
+            try {
+                uploaded = await PawAIApi.uploadMedia(file, 'dog', petId);
+            } catch (err) {
+                showHomeMessage(
+                    `Upload failed: ${err.message || 'Unknown error. Please try again.'}`,
+                    true
+                );
+                return;
+            }
+
+            // The backend MediaOut schema returns the record id as `id`.
+            const mediaId = uploaded && uploaded.id;
+            if (!mediaId) {
+                showHomeMessage('Upload succeeded but no media ID was returned. Please try again.', true);
+                return;
+            }
+
+            // Hand off to the status page with the real media_id in the URL.
+            window.location.href = `status.html?media_id=${encodeURIComponent(mediaId)}`;
+        }
+
+        // --- NAVBAR SCROLL BACKGROUND ---
+        const navbar = document.querySelector('.navbar');
+
+        function updateNavbar() {
+            if (window.scrollY > 10) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        }
+
+        window.addEventListener('scroll', updateNavbar);
+
+        // Set correct state when page loads
+        updateNavbar();
+
+        // --- PROFILE DROPDOWN LOGIC ---
+        const profileIcon = document.getElementById('profileIcon');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileIcon && profileDropdown) {
+            profileIcon.addEventListener('click', function () {
+                window.location.href = 'my-account.html';
+            });
+
+            profileDropdown.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+
+            document.addEventListener('click', function () {
+                profileDropdown.classList.remove('show');
+            });
+        }
+
+        // --- CAMERA + VIDEO RECORDING + AUDIO RECORDING + UPLOAD LOGIC ---
+        const startCamBtn = document.getElementById('start-camera-btn');
+        const recordVideoBtn = document.getElementById('record-video-btn');
+        const stopVideoBtn = document.getElementById('stop-video-btn');
+        const recordAudioBtn = document.getElementById('record-audio-btn');
+        const stopAudioBtn = document.getElementById('stop-audio-btn');
+        const uploadBtn = document.getElementById('upload-media-btn');
+        const videoPreview = document.getElementById('video-preview');
+        const discardCameraBtn = document.getElementById('discard-camera-btn');
+        const galleryInput = document.getElementById('galleryInput');
+        const homeMsg = document.getElementById('homeMessage');
+        const uploadPreview = document.getElementById('upload-preview');
+
+        let cameraStream = null;
+        let videoRecorder = null;
+
+        discardCameraBtn.hidden = true;
+        let audioRecorder = null;
+        let recordedChunks = [];
+	
+        // predictDogImage removed: images now go through the backend upload
+        // flow (uploadAndRedirect) like videos, not directly to the ML API.
+
+        function showHomeMessage(text, isError = false) {
+            homeMsg.textContent = text;
+            homeMsg.className = "message show";
+            homeMsg.style.borderColor = isError ? '#a96849' : '';
+            homeMsg.style.color = isError ? '#a96849' : '';
+        }
+
+        function getSupportedMimeType(kind) {
+            const types = kind === 'audio'
+                ? [
+                    'audio/webm;codecs=opus',
+                    'audio/webm',
+                    'audio/ogg;codecs=opus'
+                ]
+                : [
+                    'video/webm;codecs=vp9,opus',
+                    'video/webm;codecs=vp8,opus',
+                    'video/webm'
+                ];
+
+            return types.find(type => MediaRecorder.isTypeSupported(type)) || '';
+        }
+
+        // saveAnalysisBlob and redirectToStatus replaced by uploadAndRedirect.
+        // Media is now uploaded directly to the backend; the media_id travels
+        // to status.html as a URL query parameter instead of IndexedDB.
+
+        function stopCameraStream() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            videoPreview.srcObject = null;
+            videoPreview.style.display = 'none';
+            document.getElementById('capture-card').classList.remove('camera-active');
+
+            startCamBtn.hidden = false;
+            startCamBtn.disabled = false;
+            uploadBtn.hidden = false;
+            uploadBtn.disabled = false;
+            recordAudioBtn.hidden = false;
+            recordAudioBtn.disabled = false;
+            recordVideoBtn.hidden = true;
+            recordVideoBtn.disabled = false;
+            recordVideoBtn.classList.remove('recording-active');
+            stopVideoBtn.hidden = true;
+            stopVideoBtn.disabled = false;
+            discardCameraBtn.hidden = true;
+            discardCameraBtn.disabled = false;
+        }
+
+        function discardCameraRecording() {
+            // Discard means stop everything without triggering the recorder's
+            // normal submit/redirect handler.
+            if (videoRecorder && videoRecorder.state !== 'inactive') {
+                videoRecorder.onstop = null;
+                videoRecorder.stop();
+            }
+
+            videoRecorder = null;
+            recordedChunks = [];
+            stopCameraStream();
+            showHomeMessage("Camera recording discarded.");
+        }
+
+        async function startWebcam() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+
+                videoPreview.srcObject = cameraStream;
+                videoPreview.style.display = 'block';
+                videoPreview.muted = true;
+                videoPreview.playsInline = true;
+
+                try {
+                    await videoPreview.play();
+                } catch (playError) {
+                    console.warn('Camera preview autoplay was blocked:', playError);
+                }
+
+                document.getElementById('capture-card').classList.add('camera-active');
+
+                startCamBtn.hidden = false;
+                startCamBtn.disabled = true;
+
+                // Camera mode is exclusive: upload and audio controls remain
+                // visible but cannot be used while the camera is active.
+                uploadBtn.hidden = false;
+                uploadBtn.disabled = true;
+
+                recordAudioBtn.hidden = false;
+                recordAudioBtn.disabled = true;
+
+                recordVideoBtn.hidden = false;
+                recordVideoBtn.disabled = false;
+                discardCameraBtn.hidden = false;
+                discardCameraBtn.disabled = false;
+
+                stopVideoBtn.hidden = true;
+                stopAudioBtn.hidden = true;
+
+                showHomeMessage("Camera ready. Click Record Video when you are ready to capture the real-time video.");
+            } catch (err) {
+                console.error("Error accessing webcam:", err);
+                showHomeMessage("Error: Could not access camera. Please check camera and microphone permissions.", true);
+            }
+        }
+
+        function startVideoRecording() {
+            if (!cameraStream) {
+                showHomeMessage("Start the camera first.", true);
+                return;
+            }
+
+            const mimeType = getSupportedMimeType('video');
+
+            try {
+                videoRecorder = mimeType
+                    ? new MediaRecorder(cameraStream, { mimeType })
+                    : new MediaRecorder(cameraStream);
+            } catch (err) {
+                console.error("MediaRecorder error:", err);
+                showHomeMessage("Video recording is not supported by this browser.", true);
+                return;
+            }
+
+            recordedChunks = [];
+
+            videoRecorder.ondataavailable = event => {
+                if (event.data && event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+
+            videoRecorder.onstop = async () => {
+                const blobType = videoRecorder.mimeType || mimeType || 'video/webm';
+                const recordedBlob = new Blob(recordedChunks, { type: blobType });
+                const recordedFile = new File([recordedBlob], 'pawai-recording.webm', { type: blobType });
+
+                stopCameraStream();
+                showHomeMessage('Uploading recording…');
+                await uploadAndRedirect(recordedFile);
+            };
+
+            videoRecorder.start();
+
+            recordVideoBtn.hidden = true;
+            recordVideoBtn.disabled = true;
+            recordVideoBtn.classList.add('recording-active');
+
+            stopVideoBtn.hidden = false;
+            stopVideoBtn.disabled = false;
+
+            showHomeMessage("Recording in progress. Click Stop & Submit when you are finished.");
+        }
+
+        function stopVideoRecording() {
+            if (!videoRecorder || videoRecorder.state !== 'recording') return;
+
+            videoRecorder.stop();
+
+            stopVideoBtn.disabled = true;
+            recordVideoBtn.disabled = true;
+            recordVideoBtn.classList.remove('recording-active');
+
+            showHomeMessage("Preparing your video...");
+        }
+
+        let audioStream = null;
+        let audioContext = null;
+        let analyser = null;
+        let audioAnimationFrame = null;
+        let audioStartTime = 0;
+        let audioPausedAt = 0;
+        let audioPausedTotal = 0;
+        let audioTimerInterval = null;
+        let audioIsPaused = false;
+
+        const audioPanel = document.getElementById('audio-recorder-panel');
+        const audioTimer = document.getElementById('audio-timer');
+        const audioWaveform = document.getElementById('audio-waveform');
+        const pauseAudioBtn = document.getElementById('pause-audio-btn');
+        const pauseAudioIcon = document.getElementById('pause-audio-icon');
+        const submitAudioBtn = document.getElementById('submit-audio-btn');
+        const discardAudioBtn = document.getElementById('discard-audio-btn');
+        const waveformCtx = audioWaveform.getContext('2d');
+
+        function formatAudioTime(seconds) {
+            const total = Math.max(0, Math.floor(seconds));
+            return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+        }
+
+        function resizeWaveform() {
+            const rect = audioWaveform.getBoundingClientRect();
+            const ratio = window.devicePixelRatio || 1;
+            audioWaveform.width = Math.max(1, Math.floor(rect.width * ratio));
+            audioWaveform.height = Math.max(1, Math.floor(rect.height * ratio));
+            waveformCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        }
+
+        /*
+         * WhatsApp-style live audio waveform.
+         * Each new vertical bar represents the current microphone amplitude.
+         * The waveform continuously scrolls from right to left.
+         */
+        let waveformBars = [];
+        let waveformLastBarTime = 0;
+        const WAVE_BAR_INTERVAL = 48;
+        const WAVE_BAR_WIDTH = 4;
+        const WAVE_BAR_GAP = 5;
+
+        function getWaveformColor() {
+            return document.body.classList.contains('light-theme')
+                ? '#1d1b1a'
+                : '#b9c0c6';
+        }
+
+        function drawAudioWaveform(timestamp = 0) {
+            if (!analyser) return;
+
+            const width = audioWaveform.clientWidth;
+            const height = audioWaveform.clientHeight;
+
+            if (!width || !height) {
+                audioAnimationFrame = requestAnimationFrame(drawAudioWaveform);
+                return;
+            }
+
+            // Pausing keeps the MediaRecorder and microphone session alive. Keep
+            // the last bars on screen too, so the UI clearly reads as "waiting"
+            // instead of looking as though a new recording needs to be started.
+            if (audioIsPaused) {
+                audioAnimationFrame = requestAnimationFrame(drawAudioWaveform);
+                return;
+            }
+
+            const bufferLength = analyser.fftSize;
+            const timeData = new Uint8Array(bufferLength);
+
+            analyser.getByteTimeDomainData(timeData);
+
+            // RMS gives a stable measure of the current microphone loudness.
+            let sum = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                const sample = (timeData[i] - 128) / 128;
+                sum += sample * sample;
+            }
+
+            const rms = Math.sqrt(sum / bufferLength);
+
+            // Convert microphone loudness into a visually useful bar height.
+            const smoothedLevel = Math.min(1, rms * 5.2);
+            const barHeight = Math.max(
+                8,
+                Math.min(height * .88, smoothedLevel * height * 2.25)
+            );
+
+            // Add a new bar at a controlled rate so the waveform resembles
+            // a real messaging-app voice recorder rather than a solid line.
+            if (timestamp - waveformLastBarTime >= WAVE_BAR_INTERVAL) {
+                waveformBars.push(barHeight);
+                waveformLastBarTime = timestamp;
+            }
+
+            const maxBars = Math.ceil(
+                width / (WAVE_BAR_WIDTH + WAVE_BAR_GAP)
+            );
+
+            if (waveformBars.length > maxBars) {
+                waveformBars = waveformBars.slice(-maxBars);
+            }
+
+            waveformCtx.clearRect(0, 0, width, height);
+
+            const centerY = height / 2;
+            const step = WAVE_BAR_WIDTH + WAVE_BAR_GAP;
+            const dotsWidth = 28;
+            const waveformWidth = waveformBars.length * step;
+            // Keep the newest sound at the right edge, like a voice-message
+            // composer, while leaving room for the familiar leading ellipsis.
+            const startX = Math.max(dotsWidth, width - waveformWidth);
+
+            const waveformColor = getWaveformColor();
+            waveformCtx.fillStyle = waveformColor;
+            waveformCtx.strokeStyle = waveformColor;
+            waveformCtx.lineWidth = WAVE_BAR_WIDTH;
+            waveformCtx.lineCap = 'round';
+
+            // The quiet leading dots give the waveform the WhatsApp-like voice
+            // message silhouette before the live amplitude bars begin.
+            [0.34, 0.58, 0.82].forEach((opacity, index) => {
+                waveformCtx.globalAlpha = opacity;
+                waveformCtx.beginPath();
+                waveformCtx.arc(5 + index * 8, centerY, 2.25, 0, Math.PI * 2);
+                waveformCtx.fill();
+            });
+            waveformCtx.globalAlpha = 1;
+
+            waveformBars.forEach((barHeight, index) => {
+                const x = startX + index * step + WAVE_BAR_WIDTH / 2;
+                const halfHeight = barHeight / 2;
+
+                waveformCtx.beginPath();
+                waveformCtx.moveTo(x, centerY - halfHeight);
+                waveformCtx.lineTo(x, centerY + halfHeight);
+                waveformCtx.stroke();
+            });
+
+            audioAnimationFrame = requestAnimationFrame(drawAudioWaveform);
+        }
+
+        function stopAudioVisualizer() {
+            if (audioAnimationFrame) cancelAnimationFrame(audioAnimationFrame);
+            audioAnimationFrame = null;
+
+            if (audioContext) audioContext.close().catch(() => {});
+            audioContext = null;
+            analyser = null;
+        }
+
+        function updateAudioTimer() {
+            if (!audioStartTime || audioIsPaused) return;
+            const elapsed = (performance.now() - audioStartTime - audioPausedTotal) / 1000;
+            audioTimer.textContent = formatAudioTime(elapsed);
+        }
+
+        function resetAudioRecorderUI() {
+            clearInterval(audioTimerInterval);
+            audioTimerInterval = null;
+            stopAudioVisualizer();
+
+            audioPanel.hidden = true;
+            audioPanel.classList.remove('is-paused');
+
+            pauseAudioIcon.className = 'fa-solid fa-pause';
+            pauseAudioBtn.title = 'Pause recording';
+            pauseAudioBtn.setAttribute('aria-label', 'Pause recording');
+
+            audioTimer.textContent = '0:00';
+            waveformBars = [];
+            waveformLastBarTime = 0;
+
+            waveformCtx.clearRect(
+                0,
+                0,
+                audioWaveform.clientWidth,
+                audioWaveform.clientHeight
+            );
+
+            audioIsPaused = false;
+            audioStartTime = 0;
+            audioPausedAt = 0;
+            audioPausedTotal = 0;
+        }
+
+        async function startAudioRecording() {
+            if (cameraStream || videoRecorder) {
+                showHomeMessage("Audio recording is unavailable while the camera is active.", true);
+                return;
+            }
+
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                const mimeType = getSupportedMimeType('audio');
+                audioRecorder = mimeType
+                    ? new MediaRecorder(audioStream, { mimeType })
+                    : new MediaRecorder(audioStream);
+
+                recordedChunks = [];
+
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const sourceNode = audioContext.createMediaStreamSource(audioStream);
+
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                analyser.smoothingTimeConstant = .72;
+                sourceNode.connect(analyser);
+
+                waveformBars = [];
+                waveformLastBarTime = performance.now();
+                audioPanel.hidden = false;
+                pauseAudioBtn.disabled = false;
+                submitAudioBtn.disabled = false;
+
+                // A hidden canvas reports a zero-size rectangle. Reveal it before
+                // setting the backing-store size, then start the live right-to-left
+                // waveform on the next paint.
+                requestAnimationFrame(() => {
+                    resizeWaveform();
+                    waveformCtx.clearRect(
+                        0,
+                        0,
+                        audioWaveform.clientWidth,
+                        audioWaveform.clientHeight
+                    );
+                    drawAudioWaveform();
+                });
+
+                audioStartTime = performance.now();
+                audioPausedTotal = 0;
+                audioIsPaused = false;
+                audioTimerInterval = setInterval(updateAudioTimer, 100);
+
+                audioRecorder.ondataavailable = event => {
+                    if (event.data && event.data.size > 0) recordedChunks.push(event.data);
+                };
+
+                audioRecorder.onstop = async () => {
+                    clearInterval(audioTimerInterval);
+                    audioTimerInterval = null;
+
+                    const blobType = audioRecorder.mimeType || mimeType || 'audio/webm';
+                    const recordedBlob = new Blob(recordedChunks, { type: blobType });
+                    const recordedFile = new File([recordedBlob], 'pawai-audio-recording.webm', { type: blobType });
+
+                    if (audioStream) {
+                        audioStream.getTracks().forEach(track => track.stop());
+                        audioStream = null;
+                    }
+
+                    stopAudioVisualizer();
+                    resetAudioRecorderUI();
+                    showHomeMessage('Uploading audio…');
+                    await uploadAndRedirect(recordedFile);
+                };
+
+                audioRecorder.start(250);
+
+                startCamBtn.hidden = true;
+                uploadBtn.hidden = true;
+                recordAudioBtn.hidden = true;
+                recordVideoBtn.hidden = true;
+                stopVideoBtn.hidden = true;
+
+                showHomeMessage("Recording in progress. Pause keeps this recording ready to resume; send ends and submits it.");
+            } catch (err) {
+                console.error("Error accessing microphone:", err);
+                showHomeMessage("Error: Could not access the microphone. Please check microphone permissions.", true);
+            }
+        }
+
+        function toggleAudioPause() {
+            if (!audioRecorder) return;
+
+            if (audioRecorder.state === 'recording') {
+                audioRecorder.pause();
+                audioPausedAt = performance.now();
+                audioIsPaused = true;
+
+                audioPanel.classList.add('is-paused');
+                pauseAudioIcon.className = 'fa-solid fa-microphone';
+                pauseAudioBtn.title = 'Resume recording';
+                pauseAudioBtn.setAttribute('aria-label', 'Resume recording');
+
+                showHomeMessage("Recording paused and waiting. Click the microphone button to continue, or send to finish.");
+            } else if (audioRecorder.state === 'paused') {
+                audioRecorder.resume();
+                audioPausedTotal += performance.now() - audioPausedAt;
+                audioPausedAt = 0;
+                audioIsPaused = false;
+
+                audioPanel.classList.remove('is-paused');
+                pauseAudioIcon.className = 'fa-solid fa-pause';
+                pauseAudioBtn.title = 'Pause recording';
+                pauseAudioBtn.setAttribute('aria-label', 'Pause recording');
+
+                showHomeMessage("Audio recording resumed.");
+            }
+        }
+
+        function stopAudioRecording() {
+            if (!audioRecorder ||
+                (audioRecorder.state !== 'recording' && audioRecorder.state !== 'paused')) return;
+
+            if (audioRecorder.state === 'paused') audioRecorder.resume();
+            audioRecorder.stop();
+
+            pauseAudioBtn.disabled = true;
+            submitAudioBtn.disabled = true;
+            showHomeMessage("Preparing your audio...");
+        }
+
+        function discardAudioRecording() {
+            if (audioRecorder &&
+                (audioRecorder.state === 'recording' || audioRecorder.state === 'paused')) {
+                audioRecorder.onstop = null;
+                audioRecorder.stop();
+            }
+
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                audioStream = null;
+            }
+
+            stopAudioVisualizer();
+            resetAudioRecorderUI();
+
+            startCamBtn.hidden = false;
+            startCamBtn.disabled = false;
+            uploadBtn.hidden = false;
+            recordAudioBtn.hidden = false;
+            recordAudioBtn.disabled = false;
+
+            showHomeMessage("Audio recording discarded.");
+        }
+
+        pauseAudioBtn.addEventListener('click', toggleAudioPause);
+        submitAudioBtn.addEventListener('click', stopAudioRecording);
+        discardAudioBtn.addEventListener('click', discardAudioRecording);
+        window.addEventListener('resize', resizeWaveform);
+
+        startCamBtn.addEventListener('click', startWebcam);
+        discardCameraBtn.addEventListener('click', discardCameraRecording);
+        recordVideoBtn.addEventListener('click', startVideoRecording);
+        stopVideoBtn.addEventListener('click', stopVideoRecording);
+
+        recordAudioBtn.addEventListener('click', startAudioRecording);
+
+        uploadBtn.addEventListener('click', () => {
+            if (cameraStream) {
+                showHomeMessage("Upload Media is unavailable while the camera is active.", true);
+                return;
+            }
+            galleryInput.click();
+        });
+
+        galleryInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            galleryInput.value = ''; // reset so the same file can be re-selected
+
+            if (!file) return;
+
+            if (cameraStream || videoRecorder) {
+                showHomeMessage('Upload Media is unavailable while the camera is active.', true);
+                return;
+            }
+
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+
+            if (!isImage && !isVideo) {
+                showHomeMessage('Please select an image or video file.', true);
+                return;
+            }
+
+            uploadPreview.style.display = 'block';
+            uploadPreview.textContent = `Selected: ${file.name}`;
+
+            // Both images and videos go through the backend upload flow.
+            // The backend currently only supports video analysis, but uploading
+            // an image still creates a media record and lands on the status page.
+            await uploadAndRedirect(file);
+        });
+
+    </script>
+</body>
+</html>

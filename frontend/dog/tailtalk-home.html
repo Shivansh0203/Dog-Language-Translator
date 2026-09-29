@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tailtalk: know what your dog is telling you</title>
+<meta name="description" content="Tailtalk listens to barks and reads body language from live video and audio, then explains your dog's mood in a real-time chat.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EEF4; --surface:#F7FAFC; --ink:#142033; --ink2:#46566B; --line:#C6D1DE;
+  --stage:#0F1926; --stage2:#142133; --stage-ink:#EAF1FA; --stage-mute:#8FA2B8; --dogline:#BCD0E6;
+  --excited:#FFB020; --playful:#FF6F91; --calm:#3DD6B0; --anxious:#9B87FF; --alert:#4DA3FF;
+  --focus:#2B6BE0;
+  --display:'Bricolage Grotesque','Avenir Next','Segoe UI',system-ui,sans-serif;
+  --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A111A; --surface:#111B28; --ink:#E9F0F8; --ink2:#9CABBE; --line:#233245;
+    --stage:#0F1B2B; --stage2:#152438; --focus:#7DB4FF;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A111A; --surface:#111B28; --ink:#E9F0F8; --ink2:#9CABBE; --line:#233245;
+  --stage:#0F1B2B; --stage2:#152438; --focus:#7DB4FF;
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 76px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.025em;line-height:1.02}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{width:100%;max-width:1180px;margin-inline:auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+
+/* header */
+.site-head{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.head-row{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.brand{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:1.3rem;letter-spacing:-.03em;text-decoration:none}
+.brand-mark{width:34px;height:34px;border-radius:11px;background:var(--ink);color:var(--bg);display:grid;place-items:center}
+.brand-mark svg{width:20px;height:20px}
+.nav{display:flex;align-items:center;gap:26px;font-weight:500;font-size:.98rem}
+.nav a{text-decoration:none;color:var(--ink2)}
+.nav a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;font:inherit;font-weight:600;font-size:1rem;border-radius:999px;padding:13px 22px;text-decoration:none;cursor:pointer;border:1.5px solid transparent;transition:transform .15s ease,background-color .2s}
+.btn:active{transform:scale(.97)}
+.btn-solid{background:var(--ink);color:var(--bg)}
+.btn-solid:hover{background:color-mix(in srgb,var(--ink) 86%,var(--bg))}
+.btn-line{border-color:var(--ink2);color:var(--ink)}
+.btn-line:hover{border-color:var(--ink)}
+.nav .btn{padding:9px 18px;color:var(--bg);font-size:.95rem}
+.nav .btn:hover{color:var(--bg)}
+
+/* hero copy */
+.hero{padding-top:clamp(36px,6vw,72px);padding-bottom:clamp(28px,4vw,44px);display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:end}
+.hero h1{font-size:clamp(2.7rem,6.4vw,5.6rem);font-weight:800;letter-spacing:-.04em;line-height:.95}
+.hero-side p{color:var(--ink2);font-size:1.15rem;max-width:34ch}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+
+/* live demo stage */
+.stage{--mood:var(--excited);position:relative;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);background:var(--stage);color:var(--stage-ink);border-radius:28px;overflow:hidden;box-shadow:inset 0 3px 0 var(--mood),0 40px 70px -40px rgba(8,16,32,.6);transition:box-shadow .6s}
+.stage-left{min-width:0}
+.viewer{padding:20px 22px 0}
+.viewer-top{display:flex;justify-content:space-between;align-items:center;font-size:.86rem;color:var(--stage-mute)}
+.live{display:inline-flex;align-items:center;gap:9px;color:var(--stage-ink);font-weight:600}
+.live i{position:relative;width:9px;height:9px;border-radius:50%;background:var(--mood);transition:background-color .5s}
+.live i::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--mood);animation:ping 1.9s ease-out infinite}
+@keyframes ping{from{transform:scale(1);opacity:.6}to{transform:scale(3);opacity:0}}
+#dog{display:block;width:100%;height:auto;max-height:340px;margin-top:2px}
+.dog-fill{fill:var(--stage);stroke:var(--dogline);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.dog-far{opacity:.5}
+.bone{stroke:var(--mood);stroke-width:1.8;stroke-linecap:round;opacity:.85;transition:stroke .5s}
+.kp{fill:var(--stage);stroke:var(--mood);stroke-width:2.4;transition:stroke .5s}
+.box{fill:none;stroke:var(--mood);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .5s}
+.box-tag{fill:var(--mood);transition:fill .5s}
+.reads{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:10px 22px 20px}
+.reads dt{font-size:.8rem;color:var(--stage-mute);margin:0 0 2px}
+.reads dd{margin:0;font-weight:600;font-size:.98rem;line-height:1.3}
+.audio{border-top:1px solid rgba(255,255,255,.08);padding-top:14px}
+.audio-head{display:flex;justify-content:space-between;padding:0 22px;font-size:.86rem;color:var(--stage-mute)}
+.audio-head b{color:var(--stage-ink);font-weight:600}
+#wave{display:block;width:calc(100% - 44px);height:84px;margin:8px 22px 0}
+.audio .reads{padding-top:12px}
+
+/* chat */
+.chat{position:relative;background:var(--stage2);border-left:1px solid rgba(255,255,255,.07);min-width:0}
+.chat-in{position:absolute;inset:0;display:flex;flex-direction:column}
+.chat-head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--mood);color:#0F1926;display:grid;place-items:center;transition:background-color .5s;flex:none}
+.avatar svg{width:21px;height:21px}
+.chat-head b{display:block;font-family:var(--display);font-size:1.05rem;line-height:1.1}
+.chat-head span{font-size:.82rem;color:var(--stage-mute)}
+.msgs{flex:1;min-height:0;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+.evt{display:flex;gap:9px;align-items:flex-start;font-size:.84rem;color:var(--stage-mute);line-height:1.4}
+.evt svg{flex:none;width:16px;height:16px;margin-top:1px;color:var(--mood)}
+.bubble{align-self:flex-start;max-width:92%;background:rgba(255,255,255,.07);border-radius:18px 18px 18px 5px;padding:11px 15px;font-size:.98rem;line-height:1.45}
+.bubble.tip{background:color-mix(in srgb,var(--mood) 14%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--mood) 45%,transparent)}
+.conf{align-self:flex-start;margin-top:-6px;display:flex;align-items:center;gap:7px;font-size:.8rem;color:var(--stage-mute);padding-left:4px}
+.conf i{width:8px;height:8px;border-radius:50%;background:var(--mood)}
+.typing{align-self:flex-start;display:flex;gap:5px;padding:14px 16px;background:rgba(255,255,255,.07);border-radius:18px 18px 18px 5px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--stage-mute);animation:blink 1s infinite ease-in-out}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.chips{padding:12px 16px 16px;border-top:1px solid rgba(255,255,255,.07)}
+.chips p{font-size:.8rem;color:var(--stage-mute);margin-bottom:9px}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{--c:#fff;display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:.88rem;font-weight:500;color:var(--stage-ink);background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 13px;cursor:pointer;transition:background-color .2s,border-color .2s}
+.chip i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.chip:hover{border-color:var(--c)}
+.chip[aria-pressed="true"]{background:color-mix(in srgb,var(--c) 22%,transparent);border-color:var(--c)}
+.chip:focus-visible{outline-color:#fff}
+.demo-note{margin-top:14px;font-size:.88rem;color:var(--ink2)}
+
+/* sections */
+.section{padding-block:clamp(64px,9vw,120px)}
+.section-head{max-width:760px;margin-bottom:clamp(36px,5vw,60px)}
+.section-head h2{font-size:clamp(2rem,4.4vw,3.4rem);font-weight:800;letter-spacing:-.035em}
+.section-head p{margin-top:18px;color:var(--ink2);font-size:1.12rem;max-width:56ch}
+
+.pipeline{--gap:44px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);list-style:none;margin:0;padding:0}
+.step{position:relative}
+.step-icon{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);background:var(--bg);display:grid;place-items:center;position:relative;z-index:1}
+.step-icon svg{width:26px;height:26px}
+.step:not(:last-child)::after{content:"";position:absolute;top:28px;left:70px;right:calc(-1 * var(--gap) + 14px);height:0;border-top:2px dotted var(--ink2);opacity:.6}
+.step h3{margin-top:22px;font-size:1.5rem;font-weight:700}
+.step p{margin-top:10px;color:var(--ink2);max-width:36ch}
+
+.moods{border-top:1.5px solid var(--ink)}
+.mood-cols,.mood-row{display:grid;grid-template-columns:minmax(150px,.7fr) 1.2fr 1.2fr 1.3fr;gap:24px}
+.mood-cols{padding:12px 0;font-size:.88rem;color:var(--ink2);border-bottom:1px solid var(--line)}
+.mood-row{padding:22px 0;border-bottom:1px solid var(--line);transition:background-color .2s}
+.mood-row:hover{background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.mood-name{display:flex;align-items:center;gap:12px;font-family:var(--display);font-weight:700;font-size:1.5rem;letter-spacing:-.02em;line-height:1.1}
+.mood-name i{width:14px;height:14px;border-radius:50%;flex:none}
+.mood-cell{color:var(--ink);line-height:1.45}
+.cell-label{display:none;font-size:.82rem;color:var(--ink2);margin-bottom:2px}
+.moods-note{margin-top:18px;color:var(--ink2);font-size:.95rem}
+
+.who{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:clamp(32px,6vw,90px);align-items:start}
+.who .section-head{margin-bottom:0}
+.who-list{border-top:1.5px solid var(--ink)}
+.who-item{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:24px;padding:26px 0;border-bottom:1px solid var(--line)}
+.who-item h3{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+.who-item p{color:var(--ink2)}
+.honest{margin-top:34px;background:var(--surface);border-left:4px solid var(--ink);padding:20px 24px;border-radius:0 14px 14px 0;color:var(--ink);max-width:62ch}
+.honest b{font-family:var(--display);font-size:1.15rem;display:block;margin-bottom:4px}
+
+.join{background:var(--stage);color:var(--stage-ink);border-radius:28px;padding:clamp(32px,6vw,72px);display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:center}
+.join h2{font-size:clamp(2rem,4.6vw,3.6rem);font-weight:800;letter-spacing:-.035em}
+.join p{color:var(--stage-mute);margin-top:14px;max-width:44ch}
+.join-form{display:flex;flex-direction:column;gap:12px}
+.join-form input{font:inherit;color:var(--stage-ink);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:15px 22px;width:100%}
+.join-form input::placeholder{color:var(--stage-mute)}
+.join-form input:focus-visible{outline-color:#fff}
+.join-form .btn{background:var(--excited);color:#1B1300;border-color:transparent}
+.join-form .btn:hover{background:#ffc04d}
+.join-msg{min-height:1.5em;font-size:.95rem;color:var(--stage-ink)}
+.join-msg.err{color:#FF9CB0}
+
+.foot{padding-block:36px 48px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--ink2);font-size:.92rem;border-top:1px solid var(--line);margin-top:clamp(56px,8vw,100px)}
+
+/* responsive */
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr;align-items:start}
+  .stage{grid-template-columns:1fr}
+  .chat{border-left:0;border-top:1px solid rgba(255,255,255,.07);height:470px}
+  .pipeline{grid-template-columns:1fr;gap:34px}
+  .step:not(:last-child)::after{display:none}
+  .mood-cols{display:none}
+  .mood-row{grid-template-columns:1fr;gap:12px}
+  .cell-label{display:block}
+  .who{grid-template-columns:1fr}
+  .join{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .nav a:not(.btn){display:none}
+  .reads{grid-template-columns:1fr 1fr 1fr;gap:10px;padding-inline:18px}
+  .reads dd{font-size:.88rem}
+  .viewer{padding-inline:16px}
+  .audio-head{padding-inline:18px}
+  #wave{margin-inline:18px;width:calc(100% - 36px)}
+  .who-item{grid-template-columns:1fr;gap:8px}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .live i::after,.typing i{animation:none}
+  *{transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="brand" href="#top" aria-label="Tailtalk home">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.3" cy="10.4" r="1.9"/><circle cx="9.3" cy="6.2" r="2.1"/><circle cx="14.7" cy="6.2" r="2.1"/><circle cx="18.7" cy="10.4" r="1.9"/><path d="M12 12.4c-2.7 0-5.3 2.9-5.3 5.1 0 1.8 1.5 2.5 3 2.5.9 0 1.5-.4 2.3-.4s1.4.4 2.3.4c1.5 0 3-.7 3-2.5 0-2.2-2.6-5.1-5.3-5.1Z"/></svg></span>
+      Tailtalk
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#moods">Moods</a>
+      <a href="#who">Who it's for</a>
+      <a class="btn btn-solid" href="#waitlist">Join the waitlist</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="wrap hero">
+    <h1>Know what your dog is telling you.</h1>
+    <div class="hero-side">
+      <p>Point a camera at your dog. Tailtalk listens to the barks, reads the body language, and explains the mood in a live chat.</p>
+      <div class="cta-row">
+        <a class="btn btn-solid" href="#waitlist">Join the waitlist</a>
+        <a class="btn btn-line" href="#how">See how it works</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" aria-label="Live demo">
+    <div class="stage" id="stage">
+      <div class="stage-left">
+        <div class="viewer">
+          <div class="viewer-top">
+            <span class="live"><i></i>Live</span>
+            <span>Living room camera</span>
+          </div>
+          <svg id="dog" viewBox="0 0 560 340" role="img" aria-label="Animated outline of a dog with tracking points on its tail, ears, head and legs">
+            <defs>
+              <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" style="stop-color:var(--mood);stop-opacity:.26"/>
+                <stop offset="1" style="stop-color:var(--mood);stop-opacity:0"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="290" cy="178" rx="270" ry="150" fill="url(#glow)"/>
+            <ellipse cx="270" cy="306" rx="150" ry="7" fill="#000" opacity=".35"/>
+            <path class="box" d="M96 58V36h22M482 36h22v22M504 292v22h-22M118 314H96v-22"/>
+            <g>
+              <rect class="box-tag" x="96" y="10" width="118" height="22" rx="11"/>
+              <text id="boxLabel" x="108" y="25.5" font-size="12.5" font-weight="600" fill="#0F1926" font-family="Instrument Sans,system-ui,sans-serif">Biscuit 96%</text>
+            </g>
+
+            <g id="dogAll">
+              <g id="dogBody">
+                <!-- far legs -->
+                <rect class="dog-fill dog-far" x="200" y="208" width="20" height="96" rx="9"/>
+                <rect class="dog-fill dog-far" x="352" y="208" width="20" height="96" rx="9"/>
+                <!-- tail -->
+                <g id="tail">
+                  <path class="dog-fill" d="M162 146Q136 128 124 92Q138 96 148 110Q160 126 170 158Z"/>
+                </g>
+                <!-- neck -->
+                <path class="dog-fill" d="M322 142C340 124 360 106 376 92L420 134C404 162 384 188 356 206Z"/>
+                <!-- torso -->
+                <path class="dog-fill" d="M154 168C154 142 184 134 224 136L318 138C348 140 362 162 360 188C358 216 340 228 314 228L192 228C164 228 154 200 154 168Z"/>
+                <!-- near legs -->
+                <rect class="dog-fill" x="160" y="204" width="27" height="100" rx="12"/>
+                <rect class="dog-fill" x="322" y="210" width="25" height="94" rx="11"/>
+                <!-- head + ear -->
+                <g id="head">
+                  <path class="dog-fill" d="M368 110C372 90 400 84 418 100L430 112C448 108 468 112 472 124C475 138 462 147 446 147L424 147C410 158 388 158 376 144C364 132 364 120 368 110Z"/>
+                  <circle cx="469" cy="123" r="6" fill="var(--dogline)"/>
+                  <circle cx="408" cy="113" r="4" fill="var(--dogline)"/>
+                  <path d="M438 139Q450 142 460 137" fill="none" stroke="var(--dogline)" stroke-width="2.2" stroke-linecap="round"/>
+                  <g id="ear">
+                    <path class="dog-fill" d="M380 98L376 58L408 90Z"/>
+                  </g>
+                </g>
+              </g>
+              <g id="rig"></g>
+            </g>
+          </svg>
+          <dl class="reads" aria-label="Body signals">
+            <div><dt>Tail</dt><dd id="rTail">High, fast wag</dd></div>
+            <div><dt>Ears</dt><dd id="rEars">Forward</dd></div>
+            <div><dt>Posture</dt><dd id="rPosture">Bouncing on front paws</dd></div>
+          </dl>
+        </div>
+
+        <div class="audio">
+          <div class="audio-head"><b>Sound</b><span>Microphone</span></div>
+          <canvas id="wave" aria-hidden="true"></canvas>
+          <dl class="reads" aria-label="Sound signals">
+            <div><dt>Pitch</dt><dd id="rPitch">High</dd></div>
+            <div><dt>Rhythm</dt><dd id="rRhythm">Fast bursts</dd></div>
+            <div><dt>Length</dt><dd id="rLength">Short</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="chat">
+        <div class="chat-in">
+          <div class="chat-head">
+            <span class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.3" cy="10.4" r="1.9"/><circle cx="9.3" cy="6.2" r="2.1"/><circle cx="14.7" cy="6.2" r="2.1"/><circle cx="18.7" cy="10.4" r="1.9"/><path d="M12 12.4c-2.7 0-5.3 2.9-5.3 5.1 0 1.8 1.5 2.5 3 2.5.9 0 1.5-.4 2.3-.4s1.4.4 2.3.4c1.5 0 3-.7 3-2.5 0-2.2-2.6-5.1-5.3-5.1Z"/></svg></span>
+            <div><b>Tailtalk</b><span>Listening to Biscuit</span></div>
+          </div>
+          <div class="msgs" id="msgs" role="log" aria-live="polite" aria-label="Tailtalk chat"></div>
+          <div class="chips">
+            <p>Play a moment</p>
+            <div class="chip-row" id="chips"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="demo-note">This is a simulated demo. The dog, sounds and chat show how Tailtalk will respond.</p>
+  </section>
+
+  <section class="section wrap" id="how">
+    <div class="section-head">
+      <h2>Sound and body language, read together.</h2>
+      <p>A bark on its own is ambiguous. The same sound can mean joy or fear, so Tailtalk weighs what it hears against what it sees.</p>
+    </div>
+    <ol class="pipeline">
+      <li class="step">
+        <div class="step-icon"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 12v4M9 8v12M14 4v20M19 9v10M24 12v4"/></svg></div>
+        <h3>Hears the bark</h3>
+        <p>Pitch, rhythm and length are pulled from the live audio. Short high bursts, low steady warnings and thin whines each leave a different mark.</p>
+      </li>
+      <li class="step">
+        <div class="step-icon"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14s4.5-8 12-8 12 8 12 8-4.5 8-12 8S2 14 2 14Z"/><circle cx="14" cy="14" r="3.5"/></svg></div>
+        <h3>Watches the body</h3>
+        <p>The camera follows tail height, ear position, posture and gaze, frame by frame. These are the cues a trainer reads by eye.</p>
+      </li>
+      <li class="step">
+        <div class="step-icon"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H12l-5 4v-4a3 3 0 0 1-3-3V7Z"/></svg></div>
+        <h3>Talks it through</h3>
+        <p>The two signals become one mood. Tailtalk explains it in the chat in plain words, with a suggestion for what to do next.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section wrap" id="moods" style="padding-top:0">
+    <div class="section-head">
+      <h2>Five moods, and how they show up.</h2>
+      <p>Tailtalk starts with the moods owners ask about most. Each one has a sound and a look.</p>
+    </div>
+    <div class="moods" id="moodList">
+      <div class="mood-cols" aria-hidden="true"><span>Mood</span><span>You hear</span><span>You see</span><span>You can</span></div>
+    </div>
+    <p class="moods-note">More moods, such as fear, guarding and separation distress, are planned.</p>
+  </section>
+
+  <section class="section wrap" id="who" style="padding-top:0">
+    <div class="who">
+      <div class="section-head">
+        <h2>For every dog, not just the one on your sofa.</h2>
+        <p>Pet dogs come first, but the same signals show up in dogs of every kind.</p>
+      </div>
+      <div>
+        <div class="who-list">
+          <div class="who-item">
+            <h3>At home</h3>
+            <p>Find out why the barking starts, what the whining means, and when your dog is simply happy to see you.</p>
+          </div>
+          <div class="who-item">
+            <h3>On the street</h3>
+            <p>Volunteers, feeders and rescuers can tell whether a free-roaming dog looks fearful, guarding or friendly before deciding whether to approach.</p>
+          </div>
+          <div class="who-item">
+            <h3>Shelters, vets and trainers</h3>
+            <p>See how a dog's mood changes across a day, a visit or a training session.</p>
+          </div>
+        </div>
+        <div class="honest">
+          <b>It reads signals, not minds.</b>
+          Tailtalk shows how sure it is, and says so when a moment is unclear. With unfamiliar dogs, treat it as a second pair of eyes, never as a reason to get closer.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="waitlist">
+    <div class="join">
+      <div>
+        <h2>Be first to try it with your dog.</h2>
+        <p>Leave your email and we'll write when the first version is ready to test.</p>
+      </div>
+      <div class="join-form">
+        <label class="sr" for="email">Email address</label>
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com">
+        <button class="btn" id="joinBtn" type="button">Join the waitlist</button>
+        <p class="join-msg" id="joinMsg" role="status"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <span>Tailtalk</span>
+  <span>&copy; 2026 Tailtalk</span>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- content: one source for the demo and the mood list ---------- */
+  var MOODS = {
+    excited:{label:'Excited',color:'#FFB020',conf:96,
+      pose:{head:-10,ear:5,tail:32,amp:26,hz:4.2,bounce:3,jitter:0},
+      audio:{period:2.4,offsets:[0,.16,.32,.48],amp:.95,width:.045,tex:.6,hum:0,base:.05},
+      tail:'High, fast wag',ears:'Forward',posture:'Bouncing on front paws',
+      pitch:'High',rhythm:'Fast bursts',length:'Short',
+      evt:'Heard 4 short, high barks. Saw a high tail wagging fast.',
+      msg:'Biscuit is thrilled. Someone she loves is close, and the barks are her excitement spilling over.',
+      tip:'Greet her calmly and wait until all four paws are on the floor.',
+      hear:'Short, high barks in fast bursts.',
+      see:'Tail high and wagging fast, ears forward, bouncing on the front paws.',
+      todo:'Stay calm and greet once all four paws are down.'},
+    playful:{label:'Playful',color:'#FF6F91',conf:91,
+      pose:{head:10,ear:-22,tail:12,amp:32,hz:3.4,bounce:16,jitter:0},
+      audio:{period:2.6,offsets:[0,.35],amp:.8,width:.07,tex:.35,hum:0,base:.05},
+      tail:'Loose, wide wag',ears:'Relaxed, flopping',posture:'Bouncy and loose',
+      pitch:'Mid, yippy',rhythm:'Pairs with pauses',length:'Short',
+      evt:'Heard 2 bouncy yips. Saw a loose body and a wide wag.',
+      msg:'This is an invitation to play. The bouncy moves and short yips mean Biscuit is having fun.',
+      tip:'Toss a toy, or crouch down and join in.',
+      hear:'Bouncy yips and barks in pairs, with pauses.',
+      see:'Front end low in a play bow, loose and wiggly body.',
+      todo:'Toss a toy or start a game.'},
+    calm:{label:'Calm',color:'#3DD6B0',conf:94,
+      pose:{head:2,ear:-12,tail:-80,amp:5,hz:.7,bounce:0,jitter:0},
+      audio:{period:5,offsets:[.5],amp:.28,width:.1,tex:.1,hum:0,base:.03},
+      tail:'Low, slow sway',ears:'Relaxed',posture:'Loose, weight even',
+      pitch:'Low, soft',rhythm:'Rare',length:'Very short',
+      evt:'Heard one soft huff. Saw a low tail and relaxed ears.',
+      msg:'Biscuit is relaxed and content. Nothing is bothering her right now.',
+      tip:'A good moment for a cuddle or a nap together.',
+      hear:'Mostly quiet, with a soft huff or sigh.',
+      see:'Tail low and loose, ears relaxed, slow blinks.',
+      todo:'Nothing to fix. Enjoy it.'},
+    anxious:{label:'Anxious',color:'#9B87FF',conf:88,
+      pose:{head:16,ear:-68,tail:-128,amp:3,hz:7,bounce:0,jitter:1.6},
+      audio:{period:3,offsets:[0,.14,.26,.5,.62,.9],amp:.7,width:.05,tex:.7,hum:.16,base:.06},
+      tail:'Tucked',ears:'Pinned back',posture:'Low, trembling',
+      pitch:'High, wavering',rhythm:'Fast, uneven',length:'Mixed, with whines',
+      evt:'Heard fast, wavering barks and whining. Saw a tucked tail and pinned ears.',
+      msg:'Biscuit feels unsure or unsafe. The whining and tucked tail point to stress, not aggression.',
+      tip:'Lower your voice and give her space. Check what changed: noise, visitors, or being alone.',
+      hear:'Fast, high, uneven barks mixed with whining.',
+      see:'Tail tucked, ears pinned back, trembling or pacing.',
+      todo:'Lower your voice, give space, and look for the trigger.'},
+    alert:{label:'Alert',color:'#4DA3FF',conf:93,
+      pose:{head:-14,ear:14,tail:14,amp:1.5,hz:1,bounce:0,jitter:0},
+      audio:{period:3.2,offsets:[0,.5,1],amp:1,width:.06,tex:.15,hum:0,base:.04},
+      tail:'Stiff, raised',ears:'Forward',posture:'Rigid, fixed gaze',
+      pitch:'Low, sharp',rhythm:'Even, spaced',length:'Medium',
+      evt:'Heard 3 sharp, low barks. Saw a stiff body facing the door.',
+      msg:'Biscuit has noticed something outside and is warning you. She is focused, not upset.',
+      tip:'Check the door or window. Once you acknowledge it, most dogs settle.',
+      hear:'A few sharp, low barks with even gaps.',
+      see:'Body stiff, ears forward, eyes fixed on one spot.',
+      todo:'Check what they noticed, then acknowledge it so they can settle.'}
+  };
+  var ORDER = ['excited','alert','anxious','playful','calm'];
+
+  /* ---------- mood list ---------- */
+  var list = document.getElementById('moodList');
+  ORDER.slice().sort(function(a,b){return ['excited','playful','calm','anxious','alert'].indexOf(a)-['excited','playful','calm','anxious','alert'].indexOf(b);}).forEach(function(k){
+    var m = MOODS[k], row = document.createElement('article');
+    row.className = 'mood-row';
+    row.innerHTML =
+      '<div class="mood-name"><i style="background:'+m.color+'"></i><span>'+m.label+'</span></div>'+
+      '<div class="mood-cell"><span class="cell-label">You hear</span>'+m.hear+'</div>'+
+      '<div class="mood-cell"><span class="cell-label">You see</span>'+m.see+'</div>'+
+      '<div class="mood-cell"><span class="cell-label">You can</span>'+m.todo+'</div>';
+    list.appendChild(row);
+  });
+
+  /* ---------- demo elements ---------- */
+  var stage = document.getElementById('stage');
+  var msgs = document.getElementById('msgs');
+  var chipRow = document.getElementById('chips');
+  var boxLabel = document.getElementById('boxLabel');
+  var els = {
+    tail:document.getElementById('rTail'), ears:document.getElementById('rEars'), posture:document.getElementById('rPosture'),
+    pitch:document.getElementById('rPitch'), rhythm:document.getElementById('rRhythm'), length:document.getElementById('rLength')
+  };
+  var tailEl = document.getElementById('tail'), headEl = document.getElementById('head'), earEl = document.getElementById('ear');
+  var dogAll = document.getElementById('dogAll'), rig = document.getElementById('rig');
+  var NS = 'http://www.w3.org/2000/svg';
+
+  /* chips */
+  var chipEls = {};
+  ['excited','playful','calm','anxious','alert'].forEach(function(k){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.style.setProperty('--c', MOODS[k].color);
+    b.setAttribute('aria-pressed','false');
+    b.innerHTML = '<i></i>'+MOODS[k].label;
+    b.addEventListener('click', function(){ auto = false; play(k); });
+    chipRow.appendChild(b); chipEls[k] = b;
+  });
+
+  /* ---------- pose / skeleton ---------- */
+  var NECK=[346,150], EARP=[390,94], TAILP=[162,152];
+  function rot(p,c,deg){var a=deg*Math.PI/180,s=Math.sin(a),co=Math.cos(a),dx=p[0]-c[0],dy=p[1]-c[1];return [c[0]+dx*co-dy*s,c[1]+dx*s+dy*co];}
+  var BONES = [['nose','eye'],['eye','earTip'],['eye','neck'],['neck','withers'],['withers','hip'],['hip','tailBase'],['tailBase','tailMid'],['tailMid','tailTip'],['withers','frontJoint'],['frontJoint','frontPaw'],['hip','hindJoint'],['hindJoint','hindPaw']];
+  var KEYS = ['nose','eye','earTip','neck','withers','hip','tailBase','tailMid','tailTip','frontJoint','frontPaw','hindJoint','hindPaw'];
+  var boneEls = BONES.map(function(){var l=document.createElementNS(NS,'line');l.setAttribute('class','bone');rig.appendChild(l);return l;});
+  var kpEls = {};
+  KEYS.forEach(function(k){var c=document.createElementNS(NS,'circle');c.setAttribute('class','kp');c.setAttribute('r','4.2');rig.appendChild(c);kpEls[k]=c;});
+
+  function points(headDeg, earDeg, tailDeg){
+    var H=function(p){return rot(p,NECK,headDeg);};
+    return {
+      nose:H([468,124]), eye:H([408,113]), earTip:H(rot([377,58],EARP,earDeg)), neck:NECK,
+      withers:[318,140], hip:[178,152], tailBase:TAILP,
+      tailMid:rot([141,120],TAILP,tailDeg), tailTip:rot([124,92],TAILP,tailDeg),
+      frontJoint:[334,224], frontPaw:[334,298], hindJoint:[173,226], hindPaw:[173,298]
+    };
+  }
+
+  /* ---------- state ---------- */
+  var cur = JSON.parse(JSON.stringify(MOODS.excited.pose));
+  var tgt = JSON.parse(JSON.stringify(MOODS.excited.pose));
+  var audio = MOODS.excited.audio;
+  var color = MOODS.excited.color;
+  var phase = 0, bphase = 0, T = 0;
+
+  function renderPose(t){
+    var wag = reduce ? 0 : cur.amp*Math.sin(phase);
+    var breathe = reduce ? 0 : 1.2*Math.sin(t*1.6);
+    var headDeg = cur.head + breathe;
+    var earDeg = cur.ear + (reduce ? 0 : 3*Math.sin(phase*.5));
+    var tailDeg = cur.tail + wag;
+    var by = reduce ? 0 : -cur.bounce*Math.abs(Math.sin(bphase));
+    var jx = reduce ? 0 : cur.jitter*Math.sin(t*55);
+    dogAll.setAttribute('transform','translate('+jx.toFixed(2)+' '+by.toFixed(2)+')');
+    tailEl.setAttribute('transform','rotate('+tailDeg.toFixed(2)+' '+TAILP[0]+' '+TAILP[1]+')');
+    headEl.setAttribute('transform','rotate('+headDeg.toFixed(2)+' '+NECK[0]+' '+NECK[1]+')');
+    earEl.setAttribute('transform','rotate('+earDeg.toFixed(2)+' '+EARP[0]+' '+EARP[1]+')');
+    var P = points(headDeg, earDeg, tailDeg);
+    BONES.forEach(function(b,i){var a=P[b[0]],c=P[b[1]],l=boneEls[i];l.setAttribute('x1',a[0].toFixed(1));l.setAttribute('y1',a[1].toFixed(1));l.setAttribute('x2',c[0].toFixed(1));l.setAttribute('y2',c[1].toFixed(1));});
+    KEYS.forEach(function(k){kpEls[k].setAttribute('cx',P[k][0].toFixed(1));kpEls[k].setAttribute('cy',P[k][1].toFixed(1));});
+  }
+
+  /* ---------- waveform ---------- */
+  var canvas = document.getElementById('wave'), ctx = canvas.getContext('2d');
+  var BPS = 30, STEP = 7, BAR = 4;
+  var bars = [], acc = 0, tAudio = 0, cw = 0, ch = 0, n = 0;
+
+  function env(t){
+    var a = audio, p = ((t % a.period)+a.period)%a.period, v = 0;
+    for(var i=0;i<a.offsets.length;i++){var d=p-a.offsets[i];v+=a.amp*Math.exp(-(d*d)/(2*a.width*a.width));}
+    return v;
+  }
+  function sample(t){
+    var a = audio;
+    var v = a.base*(.4+.6*Math.random()) + env(t)*(1-a.tex*Math.random()*.7) + a.hum*(.5+.5*Math.sin(t*11))*(.6+.4*Math.random());
+    return Math.min(1,v);
+  }
+  function resizeWave(){
+    var dpr = Math.min(window.devicePixelRatio||1,2), r = canvas.getBoundingClientRect();
+    cw = r.width; ch = r.height;
+    canvas.width = Math.round(cw*dpr); canvas.height = Math.round(ch*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    n = Math.ceil(cw/STEP)+2;
+    var old = bars.slice(-n); bars = [];
+    for(var i=0;i<n-old.length;i++) bars.push(0.04);
+    bars = bars.concat(old);
+    drawWave();
+  }
+  function prefill(){
+    bars = [];
+    for(var i=0;i<n;i++){ tAudio += 1/BPS; bars.push(sample(tAudio)); }
+  }
+  function drawWave(){
+    ctx.clearRect(0,0,cw,ch);
+    var mid = ch/2, off = reduce ? 0 : acc*STEP;
+    ctx.fillStyle = color;
+    for(var i=0;i<bars.length;i++){
+      var h = Math.max(2, bars[i]*(mid-3)), x = i*STEP - off;
+      ctx.globalAlpha = .2 + .8*(i/bars.length);
+      ctx.beginPath();
+      if(ctx.roundRect){ ctx.roundRect(x, mid-h, BAR, h*2, 2); } else { ctx.rect(x, mid-h, BAR, h*2); }
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function stepWave(dt){
+    tAudio += dt; acc += dt*BPS;
+    while(acc >= 1){ acc -= 1; bars.push(sample(tAudio - (acc/BPS))); bars.shift(); }
+    drawWave();
+  }
+  if('ResizeObserver' in window){ new ResizeObserver(resizeWave).observe(canvas); } else { window.addEventListener('resize', resizeWave); }
+
+  /* ---------- animation loop ---------- */
+  var last = performance.now(), loopId = 0;
+  function lerpPose(k){
+    for(var key in tgt){ cur[key] += (tgt[key]-cur[key])*k; }
+  }
+  function startLoop(){
+    if(reduce) return;
+    var id = ++loopId; last = performance.now();
+    function tick(now){
+      if(id !== loopId) return;
+      var dt = Math.min(.05,(now-last)/1000); last = now; T += dt;
+      lerpPose(1-Math.pow(.001, dt));
+      phase += 2*Math.PI*cur.hz*dt;
+      bphase += 2*Math.PI*1.1*dt;
+      renderPose(T);
+      stepWave(dt);
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  function stopLoop(){ loopId++; }
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting) startLoop(); else stopLoop();
+    },{threshold:0}).observe(stage);
+  }
+
+  /* ---------- mood application ---------- */
+  var current = null;
+  function applyMood(k){
+    var m = MOODS[k]; current = k; color = m.color;
+    stage.style.setProperty('--mood', m.color);
+    tgt = JSON.parse(JSON.stringify(m.pose));
+    if(reduce){ tgt.amp = 0; tgt.jitter = 0; tgt.bounce = 0; cur = JSON.parse(JSON.stringify(tgt)); }
+    audio = m.audio;
+    els.tail.textContent = m.tail; els.ears.textContent = m.ears; els.posture.textContent = m.posture;
+    els.pitch.textContent = m.pitch; els.rhythm.textContent = m.rhythm; els.length.textContent = m.length;
+    boxLabel.textContent = 'Biscuit '+m.conf+'%';
+    Object.keys(chipEls).forEach(function(c){ chipEls[c].setAttribute('aria-pressed', c===k ? 'true' : 'false'); });
+    if(reduce){ prefill(); renderPose(0); drawWave(); }
+  }
+
+  /* ---------- chat ---------- */
+  var seq = 0, auto = !reduce;
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, reduce ? 0 : ms); }); }
+  function el(tag, cls){ var e=document.createElement(tag); if(cls) e.className=cls; return e; }
+  function toBottom(){ try{ msgs.scrollTo({top:msgs.scrollHeight, behavior: reduce ? 'auto' : 'smooth'}); }catch(e){ msgs.scrollTop = msgs.scrollHeight; } }
+  function trim(){ while(msgs.children.length > 8) msgs.removeChild(msgs.firstChild); }
+  function addEvt(text){
+    var d = el('div','evt');
+    d.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 6v4M5.5 3.5v9M9 1.5v13M12.5 4.5v7"/></svg>';
+    var s = el('span'); s.textContent = text; d.appendChild(s);
+    msgs.appendChild(d); trim(); toBottom();
+  }
+  function addTyping(){
+    var t = el('div','typing'); t.innerHTML = '<i></i><i></i><i></i>'; t.setAttribute('aria-hidden','true');
+    msgs.appendChild(t); toBottom(); return t;
+  }
+  async function bubble(text, cls, my){
+    var b = el('div','bubble'+(cls?' '+cls:''));
+    var vis = el('span'); vis.setAttribute('aria-hidden','true');
+    var sr = el('span','sr'); sr.textContent = text;
+    b.appendChild(vis); b.appendChild(sr);
+    msgs.appendChild(b); trim();
+    if(reduce){ vis.textContent = text; toBottom(); return; }
+    for(var i=1;i<=text.length;i++){
+      if(my !== seq){ vis.textContent = text; break; }
+      vis.textContent = text.slice(0,i);
+      if(i % 6 === 0) toBottom();
+      await wait(17);
+    }
+    vis.textContent = text; toBottom();
+  }
+  function addConf(m){
+    var c = el('div','conf'); c.innerHTML = '<i></i>';
+    var s = el('span'); s.textContent = m.conf+'% sure this is '+m.label.toLowerCase(); c.appendChild(s);
+    msgs.appendChild(c); trim(); toBottom();
+  }
+  async function typingThen(ms, my){
+    var t = addTyping(); await wait(ms); t.remove(); return my === seq;
+  }
+  async function play(k){
+    var my = ++seq, m = MOODS[k];
+    applyMood(k);
+    await wait(450); if(my!==seq) return;
+    addEvt(m.evt);
+    await wait(700); if(my!==seq) return;
+    if(!(await typingThen(900,my))) return;
+    await bubble(m.msg, '', my); if(my!==seq) return;
+    addConf(m);
+    await wait(650); if(my!==seq) return;
+    if(!(await typingThen(700,my))) return;
+    await bubble(m.tip, 'tip', my); if(my!==seq) return;
+    if(auto){
+      await wait(3600); if(my!==seq || !auto) return;
+      play(ORDER[(ORDER.indexOf(k)+1) % ORDER.length]);
+    }
+  }
+
+  /* boot */
+  applyMood('excited');
+  resizeWave();
+  if(!reduce){ prefill(); startLoop(); }
+  play('excited');
+
+  /* waitlist (front-end only) */
+  var joinBtn = document.getElementById('joinBtn'), joinMsg = document.getElementById('joinMsg'), email = document.getElementById('email');
+  function join(){
+    var v = email.value.trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ joinMsg.className='join-msg err'; joinMsg.textContent='Enter a valid email address, like you@example.com.'; return; }
+    joinMsg.className='join-msg'; joinMsg.textContent='Thanks. You are on the list.'; email.value='';
+  }
+  joinBtn.addEventListener('click', join);
+  email.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); join(); } });
+})();
+</script>
+</body>
+</html>

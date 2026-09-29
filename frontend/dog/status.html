@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Status - PawAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="theme.css">
+    <style>
+        /* ---------- PawAI theme shared with home.html ---------- */
+        :root {
+            --ink: #332622;
+            --deep: #181615;
+            --paper: #f7f1eb;
+            --warm: #dabf89;
+            --peach: #edc3aa;
+            --peach-deep: #a96849;
+            --line: #d8c8bb;
+            --muted: #6f625c;
+            --light-heading: #332622;
+            --light-text: #5f5049;
+            --dark-heading: #fffaf6;
+            --dark-text: #e0d8d2;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            min-height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            background: radial-gradient(circle at 30% 40%, #523a30 0, #302522 37%, #181817 73%);
+            color: var(--dark-heading);
+            font-family: "Open Sans", Arial, sans-serif;
+            transition: background .55s ease, color .45s ease;
+        }
+
+        .status-page {
+            width: 100%;
+            height: 100vh;
+        }
+
+        .status-section {
+            width: 100%;
+            height: 100vh;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 52px 7% 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-section::before {
+            content: "";
+            position: absolute;
+            left: 4%;
+            top: 50%;
+            width: 43%;
+            height: 76%;
+            transform: translateY(-50%);
+            background: url("../assets/feature-section.png") center / contain no-repeat;
+            opacity: .88;
+            pointer-events: none;
+            transition: opacity .45s ease, filter .45s ease;
+        }
+
+        .status-card {
+            position: relative;
+            z-index: 2;
+            width: min(800px, 50vw);
+            height: calc(100vh - 70px);
+            max-height: calc(100vh - 70px);
+            padding: 26px 34px;
+            border-radius: 26px;
+            background: rgba(255, 250, 246, .68);
+            border: 1px solid rgba(143, 84, 57, .20);
+            box-shadow: 0 24px 70px rgba(80, 54, 39, .14);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+        }
+
+        .pill {
+            display: inline-flex;
+            border: 1px solid var(--peach-deep);
+            border-radius: 999px;
+            color: var(--peach);
+            background: rgba(237, 195, 170, .08);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background .45s ease, color .45s ease, border-color .45s ease;
+        }
+
+        h1 {
+            margin: 16px 0 12px;
+            font-family: "Poppins", Arial, sans-serif;
+            font-size: clamp(28px, 3.4vw, 48px);
+            line-height: 1;
+            color: #fffaf6;
+            transition: color .45s ease;
+        }
+
+        .description {
+            margin: 0;
+            color: #e0d8d2;
+            font-size: 14px;
+            line-height: 1.65;
+            transition: color .45s ease;
+        }
+
+        .metric-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .metric {
+            padding: 15px 14px;
+            text-align: center;
+            border: 1px solid rgba(237, 195, 170, .18);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .045);
+            transition: background .45s ease, border-color .45s ease;
+        }
+
+        .metric strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--peach);
+            font-size: 23px;
+            transition: color .45s ease;
+        }
+
+        .metric span {
+            color: #bdb0aa;
+            font-size: 11px;
+            transition: color .45s ease;
+        }
+
+        .submitted-media {
+            display: none;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(237, 195, 170, .15);
+        }
+
+        .submitted-media.show {
+            display: block;
+        }
+
+        .submitted-media video,
+        .submitted-media img {
+            display: block;
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 14px;
+            background: transparent;
+        }
+
+        .media-label {
+            margin-bottom: 10px;
+            color: var(--peach);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 24px;
+            left: 28px;
+            z-index: 3;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 0;
+            color: var(--peach);
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color .25s ease, transform .2s ease;
+        }
+
+        .back-link,
+        .back-link:hover,
+        .back-link:focus,
+        .back-link:active {
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: #fffaf6;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 760px) {
+            body {
+                padding: 20px;
+            }
+            .status-section {
+                min-height: 600px;
+                padding: 28px;
+                align-items: flex-end;
+            }
+            .back-link {
+                top: 18px;
+                left: 20px;
+            }
+            .status-section::before {
+                width: 80%;
+                height: 50%;
+                left: 10%;
+                top: 4%;
+                transform: none;
+                opacity: .28;
+            }
+            .status-card {
+                width: 100%;
+                height: auto;
+                max-height: calc(100vh - 90px);
+                padding: 28px;
+            }
+            .metric-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body,
+            .status-section,
+            .status-card,
+            .pill,
+            h1,
+            .description,
+            .metric,
+            .metric strong,
+            .metric span,
+            .back-link {
+                transition: none !important;
+            }
+        }
+
+        /* Un-minified UI classes */
+        .analysis-start {
+            display: flex;
+            justify-content: center;
+            margin: 14px 0 0;
+        }
+
+        .analyze-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 275px;
+            justify-content: center;
+            padding: 12px 22px;
+            border: 0;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #75432f, #a96849);
+            color: #fffaf6;
+            transition: .2s;
+        }
+
+        .analyze-trigger:hover {
+            transform: translateY(-2px);
+        }
+
+        .analyze-trigger:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .analysis-status {
+            display: none;
+            margin-top: 14px;
+            padding: 18px 20px;
+            border-radius: 20px;
+            background: rgba(255, 250, 246, .88);
+            border: 1px solid rgba(143, 84, 57, .22);
+        }
+
+        .analysis-status.visible {
+            display: block;
+        }
+
+        .analysis-main {
+            display: grid;
+            grid-template-columns: 105px 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .brain-orbit {
+            width: 92px;
+            height: 92px;
+            position: relative;
+            display: grid;
+            place-items: center;
+            margin: auto;
+        }
+
+        .brain-orbit:before,
+        .brain-orbit:after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 1px solid rgba(117, 67, 47, .35);
+        }
+
+        .brain-orbit:after {
+            inset: -9px;
+            border-color: rgba(117, 67, 47, .18);
+        }
+
+        .brain-core {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(145deg, #75432f, #a96849);
+            color: #fffaf6;
+            font-size: 24px;
+            box-shadow: 0 10px 26px rgba(91, 56, 44, .25);
+        }
+
+        .analysis-status.is-processing .brain-orbit:before {
+            animation: pulse 1.8s ease-in-out infinite;
+        }
+
+        .analysis-status.is-processing .brain-orbit:after {
+            animation: pulse 1.8s .25s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(.96);
+                opacity: .45;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        .analysis-copy h2 {
+            margin: 0 0 5px;
+            color: #332622;
+            font: 800 24px/1.15;
+        }
+
+        .stage-message {
+            margin: 0 0 10px;
+            color: #5f5049;
+            font-size: 13px;
+        }
+
+        .progress-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .progress-track {
+            height: 9px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(143, 84, 57, .18);
+        }
+
+        .progress-fill {
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #75432f, #a96849);
+            transition: width .35s ease;
+        }
+
+        .progress-percent {
+            min-width: 48px;
+            text-align: right;
+            color: #332622;
+            font: 800 17px "Poppins";
+        }
+
+        .connection-state {
+            margin-top: 5px;
+            min-height: 14px;
+            color: #8f5439;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .stage-stepper {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            margin-top: 17px;
+        }
+
+        .stage-step {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .stage-step:not(:last-child):after {
+            content: "";
+            position: absolute;
+            top: 22px;
+            left: calc(50% + 25px);
+            width: calc(100% - 50px);
+            border-top: 2px dotted rgba(109, 72, 55, .28);
+        }
+
+        .stage-step.completed:not(:last-child):after {
+            border-color: #a96849;
+        }
+
+        .stage-circle {
+            position: relative;
+            z-index: 2;
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            border: 2px solid rgba(109, 72, 55, .30);
+            background: rgba(255, 250, 246, .55);
+            color: #806d63;
+        }
+
+        .stage-step.active .stage-circle,
+        .stage-step.completed .stage-circle {
+            background: linear-gradient(145deg, #75432f, #a96849);
+            border-color: #75432f;
+            color: #fffaf6;
+            box-shadow: 0 7px 18px rgba(91, 56, 44, .2);
+        }
+
+        .stage-step.active .stage-circle {
+            animation: glow 1.7s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            50% {
+                box-shadow: 0 0 0 7px rgba(169, 104, 73, .1), 0 9px 22px rgba(91, 56, 44, .24);
+            }
+        }
+
+        .stage-name {
+            margin-top: 6px;
+            color: #806d63;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .stage-step.active .stage-name,
+        .stage-step.completed .stage-name {
+            color: #332622;
+            font-weight: 800;
+        }
+
+        .stage-state {
+            margin-top: 4px;
+            min-height: 14px;
+            color: #8f5439;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .stage-step.failed .stage-circle {
+            background: #713e2a;
+            border-color: #713e2a;
+            color: #fffaf6;
+        }
+
+        .analysis-error {
+            display: none;
+            margin-top: 18px;
+            padding: 13px 15px;
+            border-radius: 13px;
+            background: rgba(113, 62, 42, .1);
+            border: 1px solid rgba(113, 62, 42, .25);
+            color: #713e2a;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .analysis-error.show {
+            display: block;
+        }
+
+        .retry-button {
+            margin-top: 11px;
+            padding: 9px 15px;
+            border-radius: 10px;
+            background: #75432f;
+            color: #fffaf6;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .result-panel {
+            display: none;
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 14px;
+            background: rgba(218, 191, 137, .16);
+            border: 1px solid rgba(130, 103, 51, .22);
+            color: #332622;
+        }
+
+        .result-panel.show {
+            display: block;
+        }
+
+        @media(max-width: 760px) {
+            .analysis-main {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .stage-circle {
+                width: 40px;
+                height: 40px;
+            }
+            .stage-name {
+                font-size: 9.5px;
+            }
+            .stage-step:not(:last-child):after {
+                left: calc(50% + 21px);
+                width: calc(100% - 42px);
+            }
+            .analyze-trigger {
+                width: 100%;
+                min-width: 0;
+            }
+        }
+
+        @media(prefers-reduced-motion: reduce) {
+            .analysis-status * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    
+        /* ===== Compact status card / horizontal retry fix ===== */
+        .status-card {
+            height: auto;
+            max-height: calc(100vh - 78px);
+            padding: 22px 30px;
+            overflow: hidden;
+        }
+
+        .status-card h1 {
+            margin: 12px 0 7px;
+            font-size: clamp(24px, 3vw, 36px);
+        }
+
+        .status-card .description {
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .submitted-media {
+            margin-top: 14px;
+            padding-top: 12px;
+        }
+
+        .media-label {
+            margin-bottom: 7px;
+            font-size: 11px;
+        }
+
+        .analysis-start {
+            margin-top: 10px;
+        }
+
+        .analyze-trigger {
+            min-width: 265px;
+            padding: 11px 20px;
+            font-size: 14px;
+        }
+
+        .analysis-status {
+            margin-top: 11px;
+            padding: 14px 17px;
+            border-radius: 18px;
+        }
+
+        .analysis-main {
+            grid-template-columns: 88px 1fr;
+            gap: 13px;
+        }
+
+        .brain-orbit {
+            width: 78px;
+            height: 78px;
+        }
+
+        .brain-orbit:after {
+            inset: -6px;
+        }
+
+        .brain-core {
+            width: 54px;
+            height: 54px;
+            font-size: 21px;
+        }
+
+        .analysis-copy h2 {
+            margin-bottom: 3px;
+            font-size: 22px;
+        }
+
+        .stage-message {
+            margin-bottom: 7px;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .progress-track {
+            height: 8px;
+        }
+
+        .progress-percent {
+            min-width: 42px;
+            font-size: 15px;
+        }
+
+        .connection-state {
+            margin-top: 3px;
+            min-height: 11px;
+            font-size: 10px;
+        }
+
+        .stage-stepper {
+            margin-top: 12px;
+        }
+
+        .stage-circle {
+            width: 36px;
+            height: 36px;
+            font-size: 12px;
+        }
+
+        .stage-step:not(:last-child):after {
+            top: 20px;
+            left: calc(50% + 21px);
+            width: calc(100% - 42px);
+        }
+
+        .stage-name {
+            margin-top: 5px;
+            font-size: 11px;
+        }
+
+        .stage-state {
+            margin-top: 2px;
+            min-height: 10px;
+            font-size: 8px;
+        }
+
+        .analysis-error {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 10px;
+            padding: 9px 11px;
+            min-height: 46px;
+            border-radius: 11px;
+            font-size: 11px;
+            line-height: 1.25;
+        }
+
+        .analysis-error.show {
+            display: flex;
+        }
+
+        .analysis-error > strong {
+            display: block;
+            flex: 1;
+            min-width: 0;
+            margin: 0;
+        }
+
+        .analysis-error #error-message {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .analysis-error-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .analysis-error-content strong {
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .retry-button {
+            flex: 0 0 auto;
+            margin: 0;
+            padding: 8px 13px;
+            border: 0;
+            border-radius: 9px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .result-panel {
+            margin-top: 10px;
+            padding: 11px 13px;
+        }
+
+        @media(max-width: 760px) {
+            .status-card {
+                max-height: calc(100vh - 70px);
+                padding: 20px;
+            }
+            .submitted-media video,
+            .submitted-media img {
+                height: 120px;
+            }
+            .analysis-main {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .analysis-copy {
+                width: 100%;
+            }
+            .analysis-error {
+                text-align: left;
+            }
+        }
+
+        @media(max-width: 420px) {
+            .analysis-error {
+                gap: 8px;
+                padding: 8px 9px;
+            }
+            .retry-button {
+                padding: 7px 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="theme.css">
+</head>
+
+<body>
+    <main class="status-page">
+        <section class="status-section" id="status-section">
+            <a class="back-link" href="home.html">
+                <i class="fa-solid fa-chevron-left"></i>
+                Back to Home
+            </a>
+            <div class="status-card">
+                <span class="pill">Bruno Current Status</span>
+                <h1 id="status-title">Your recording is ready for analysis.</h1>
+                <p class="description" id="status-description">Your real-time video recording has been submitted successfully.</p>
+                
+                <div class="submitted-media show" id="submitted-media">
+                    <div class="media-label" id="media-label">Submitted media</div>
+                    <div id="media-container"></div>
+                </div>
+                
+                <div class="analysis-start">
+                    <button class="analyze-trigger" id="analyze-trigger" type="button">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Start Analyzing</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <section class="analysis-status" id="analysis-status" aria-live="polite">
+                    <div class="analysis-main">
+                        <div class="brain-orbit" aria-hidden="true">
+                            <div class="brain-core">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                        </div>
+                        <div class="analysis-copy">
+                            <h2 id="analysis-title">Analyzing your pet...</h2>
+                            <p class="stage-message" id="stage-message">Waiting for the backend to start the analysis.</p>
+                            <div class="progress-row">
+                                <div class="progress-track" role="progressbar" aria-label="PawAI analysis progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                    <div class="progress-fill" id="progress-fill"></div>
+                                </div>
+                                <div class="progress-percent" id="progress-percent">0%</div>
+                            </div>
+                            <div class="connection-state" id="connection-state"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-stepper">
+                        <div class="stage-step" data-stage="UPLOADING">
+                            <div class="stage-circle">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <div class="stage-name">Uploading</div>
+                            <div class="stage-state"></div>
+                        </div>
+                        
+                        <div class="stage-step" data-stage="PROCESSING">
+                            <div class="stage-circle">
+                                <i class="fa-solid fa-film"></i>
+                            </div>
+                            <div class="stage-name">Processing</div>
+                            <div class="stage-state"></div>
+                        </div>
+                        
+                        <div class="stage-step" data-stage="DETECTING">
+                            <div class="stage-circle">
+                                <i class="fa-solid fa-wave-square"></i>
+                            </div>
+                            <div class="stage-name">Detecting</div>
+                            <div class="stage-state"></div>
+                        </div>
+                        
+                        <div class="stage-step" data-stage="UNDERSTANDING">
+                            <div class="stage-circle">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div class="stage-name">Understanding</div>
+                            <div class="stage-state"></div>
+                        </div>
+                        
+                        <div class="stage-step" data-stage="GENERATING">
+                            <div class="stage-circle">
+                                <i class="fa-solid fa-square-poll-vertical"></i>
+                            </div>
+                            <div class="stage-name">Generating Result</div>
+                            <div class="stage-state"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-error" id="analysis-error">
+                        <div class="analysis-error-content">
+                            <strong>Analysis couldn't be completed</strong>
+                            <div id="error-message"></div>
+                        </div>
+                        <button class="retry-button" id="retry-button" type="button">Try Again</button>
+                    </div>
+                    
+                    <div class="result-panel" id="result-panel">
+                        <strong>Analysis Complete</strong>
+                        <span id="result-message">Your AI-generated pet analysis is ready.</span>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="theme.js"></script>
+    <script>
+        // -----------------------------------------------------------------
+        // STATUS PAGE
+        // Reads media_id from the URL query string (?media_id=<uuid>),
+        // calls PawAIApi.analyzeMedia(mediaId) via the existing api.js helper,
+        // animates the stage stepper while the backend works, then on success
+        // stores the full response in sessionStorage and redirects to result.html.
+        // -----------------------------------------------------------------
+
+        const $ = (id) => document.getElementById(id);
+
+        // ---- stage metadata (drives the stepper + progress bar) --------
+        const STAGES = ["UPLOADING", "PROCESSING", "DETECTING", "UNDERSTANDING", "GENERATING"];
+
+        // Progress % shown when a stage first becomes active.
+        const STAGE_START_PCT = {
+            UPLOADING: 2, PROCESSING: 22, DETECTING: 42,
+            UNDERSTANDING: 62, GENERATING: 82
+        };
+
+        const STAGE_COPY = {
+            UPLOADING:    "Sending your video to the analysis pipeline\u2026",
+            PROCESSING:   "Processing frames and extracting features\u2026",
+            DETECTING:    "Detecting movement, posture and attention cues\u2026",
+            UNDERSTANDING:"Understanding behaviour and mood\u2026",
+            GENERATING:   "Generating your PawAI interpretation\u2026",
+        };
+
+        // ---- read media_id from URL ------------------------------------
+        const urlParams = new URLSearchParams(window.location.search);
+        const mediaId   = urlParams.get("media_id");
+
+        // ---- helpers ---------------------------------------------------
+        function setProgress(p) {
+            p = Math.max(0, Math.min(100, p));
+            $("progress-fill").style.width = p + "%";
+            $("progress-percent").textContent = Math.round(p) + "%";
+            document.querySelector(".progress-track").setAttribute("aria-valuenow", Math.round(p));
+        }
+
+        function activateStage(stageName) {
+            const idx = STAGES.indexOf(stageName);
+            document.querySelectorAll(".stage-step").forEach((el, i) => {
+                el.classList.remove("active", "completed", "failed");
+                const label = el.querySelector(".stage-state");
+                if (i < idx) {
+                    el.classList.add("completed");
+                    label.textContent = "Completed";
+                } else if (i === idx) {
+                    el.classList.add("active");
+                    label.textContent = "Processing";
+                } else {
+                    label.textContent = "";
+                }
+            });
+            setProgress(STAGE_START_PCT[stageName]);
+            $("stage-message").textContent = STAGE_COPY[stageName];
+        }
+
+        function completeAllStages() {
+            document.querySelectorAll(".stage-step").forEach((el) => {
+                el.classList.remove("active", "failed");
+                el.classList.add("completed");
+                el.querySelector(".stage-state").textContent = "Completed";
+            });
+            setProgress(100);
+        }
+
+        let currentStageIdx = 0;
+
+        function failCurrentStage() {
+            const el = document.querySelectorAll(".stage-step")[currentStageIdx];
+            if (el) {
+                el.classList.remove("active", "completed");
+                el.classList.add("failed");
+                el.querySelector(".stage-state").textContent = "Failed";
+            }
+        }
+
+        function showError(message) {
+            $("analysis-status").classList.remove("is-processing");
+            $("analysis-error").classList.add("show");
+            $("error-message").textContent = message;
+            $("analyze-trigger").disabled = false;
+            $("connection-state").textContent = "Analysis stopped.";
+        }
+
+        // ---- simulated stage ticker ------------------------------------
+        // The backend call blocks for up to ~5 minutes while ML + Gemini run.
+        // We animate through stages at intervals so the user sees live progress.
+        let stageTimerHandle = null;
+
+        function startStageAnimation() {
+            // Each entry = ms to stay on that stage before advancing.
+            // Last stage (GENERATING) stays until the API returns.
+            const DURATIONS = [2000, 5000, 6000, 8000];
+            currentStageIdx = 0;
+            activateStage(STAGES[0]);
+
+            function advance() {
+                currentStageIdx++;
+                if (currentStageIdx >= STAGES.length - 1) {
+                    activateStage(STAGES[STAGES.length - 1]);
+                    return; // stay on GENERATING until API returns
+                }
+                activateStage(STAGES[currentStageIdx]);
+                stageTimerHandle = setTimeout(advance, DURATIONS[currentStageIdx]);
+            }
+
+            stageTimerHandle = setTimeout(advance, DURATIONS[0]);
+        }
+
+        function stopStageAnimation() {
+            if (stageTimerHandle !== null) {
+                clearTimeout(stageTimerHandle);
+                stageTimerHandle = null;
+            }
+        }
+
+        // ---- core analysis function ------------------------------------
+        async function runAnalysis() {
+            if (!mediaId) {
+                // No media_id in URL — stay on page with a clear error.
+                $("status-title").textContent = "No media to analyse.";
+                $("status-description").textContent =
+                    "Return to the Home page, record or upload a video, and try again.";
+                $("analyze-trigger").disabled = true;
+                $("submitted-media").classList.remove("show");
+                $("analysis-status").classList.add("visible");
+                $("analysis-error").classList.add("show");
+                $("error-message").textContent =
+                    "No media_id found in the URL. Please go back to Home and upload a video.";
+                return;
+            }
+
+            $("analyze-trigger").disabled = true;
+            $("analysis-status").classList.add("visible", "is-processing");
+            $("analysis-error").classList.remove("show");
+            $("connection-state").textContent = "Starting analysis\u2026";
+
+            startStageAnimation();
+
+            let response;
+            try {
+                // PawAIApi.analyzeMedia is defined in api.js.
+                // It calls: POST /api/analyze/{mediaId}  (with session cookie).
+                response = await PawAIApi.analyzeMedia(mediaId);
+            } catch (err) {
+                stopStageAnimation();
+                failCurrentStage();
+                showError(err.message || "Analysis failed. Please try again.");
+                return;
+            }
+
+            stopStageAnimation();
+
+            // ---- success -----------------------------------------------
+            completeAllStages();
+            $("analysis-status").classList.remove("is-processing");
+            $("analysis-title").textContent = "Analysis Complete";
+            $("stage-message").textContent   = "Your PawAI interpretation is ready.";
+            $("connection-state").textContent = "";
+
+            // Save the full backend response for result.html to read.
+            // result.html reads: sessionStorage.getItem("pawai-analysis-result")
+            sessionStorage.setItem("pawai-analysis-result",   JSON.stringify(response));
+            sessionStorage.setItem("pawai-analysis-media-id", mediaId);
+
+            // Brief pause so the user sees "Analysis Complete".
+            setTimeout(() => {
+                window.location.href = "result.html";
+            }, 800);
+        }
+
+        // ---- wire up buttons ------------------------------------------
+        $("analyze-trigger").addEventListener("click", runAnalysis);
+
+        $("retry-button").addEventListener("click", () => {
+            $("analysis-error").classList.remove("show");
+            runAnalysis();
+        });
+
+        // ---- auto-start on page load ----------------------------------
+        runAnalysis();
+    </script>
+</body>
+</html>
