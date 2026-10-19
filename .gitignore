@@ -85,3 +85,5 @@ media/
 *.db
 *.sqlite
 *.sqlite3
+# Local HTTPS certificates
+certs/
