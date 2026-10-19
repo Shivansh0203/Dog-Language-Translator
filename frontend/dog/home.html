@@ -319,6 +319,12 @@
             pointer-events: none;
         }
 
+        #hero-section #heroFrames {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+        }
+
         #hero-section .glass-box {
             position: relative;
             z-index: 2;
@@ -774,13 +780,122 @@
                 align-items: flex-start;
             }
         }
+        /* ================================
+        MOBILE CAMERA QR MODAL
+        ================================ */
+
+        .mobile-camera-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(8px);
+        }
+
+        .mobile-camera-live-wrap {
+            position: relative;
+            width: 100%;
+            margin: 18px 0;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #000;
+            aspect-ratio: 16 / 9;
+        }
+
+        .mobile-camera-live-wrap video {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mobile-camera-recording-indicator {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .mobile-camera-recording-indicator span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff3b30;
+        }
+
+        .mobile-camera-modal.show {
+            display: flex;
+        }
+
+        .mobile-camera-modal-card {
+            width: min(430px, 92vw);
+            padding: 28px;
+            border-radius: 24px;
+            text-align: center;
+            background: var(--panel, #ffffff);
+            border: 1px solid var(--line, rgba(0, 0, 0, 0.12));
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+        }
+
+        .mobile-camera-modal-card h2 {
+            margin: 0 0 8px;
+        }
+
+        .mobile-camera-modal-card p {
+            margin: 0 0 20px;
+            color: var(--muted, #666);
+        }
+
+        #mobile-camera-qr {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 18px;
+            padding: 10px;
+            background: #ffffff;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #mobile-camera-qr img,
+        #mobile-camera-qr canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .mobile-camera-session {
+            margin: 12px 0;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(128, 128, 128, 0.08);
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .mobile-camera-close {
+            margin-top: 8px;
+        }
     </style>
 </head>
 
 <body>
     <header class="navbar">
         <a class="brand" href="home.html" aria-label="PawAI home">
-            <img src="../assets/web-logo-2.png" alt="PawAI logo" class="logo-image">
+            <img src="../assets/web-logo.png" alt="PawAI logo" class="logo-image">
         </a>
 
         <nav class="nav-links" aria-label="Primary navigation">
@@ -818,6 +933,7 @@
         <!-- HERO SECTION -->
         <section id="hero-section">
             <img class="hero-animal" src="../assets/hero-section.png" alt="PawAI pet companion">
+            <canvas id="heroFrames" aria-hidden="true"></canvas>
             <div class="glass-box" id="capture-card">
                 <span class="pill">AI-powered pet care dashboard</span>
                 <h1>Hello,<br><span class="brand-accent" id="pet-name">Bruno.</span></h1>
@@ -828,6 +944,10 @@
                         Start Camera
                     </button>
 
+                    <button class="hero-ghost-btn" id="mobile-camera-btn">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        Mobile Camera
+                    </button>
                     <button class="hero-ghost-btn" id="upload-media-btn">
                         <i class="fa-solid fa-upload"></i>
                         Upload Media
@@ -838,10 +958,10 @@
                         Record Audio
                     </button>
 
-                    <button class="hero-ghost-btn" id="record-video-btn">
+                    <!-- <button class="hero-ghost-btn" id="record-video-btn">
                         <i class="fa-solid fa-video"></i>
                         Start Live Chat
-                    </button>
+                    </button> -->
 
                     <button class="hero-ghost-btn workflow-btn video-workflow-btn" id="record-video-btn" hidden>
                         <i class="fa-solid fa-circle"></i>
@@ -878,6 +998,7 @@
 
                 <div class="camera-preview-wrap">
                     <video id="video-preview" autoplay playsinline muted></video>
+                    <video id="mobile-camera-preview" autoplay playsinline muted style="display: none;"></video>
                     <button id="discard-camera-btn" class="camera-discard-btn" type="button" title="Discard camera" aria-label="Discard camera">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -890,7 +1011,61 @@
 
     <!-- Hidden file input for "Upload Media" -->
     <input id="galleryInput" class="media-input" type="file" accept="image/*,video/*">
+    <!-- Mobile Camera Pairing Modal -->
+    <div
+        class="mobile-camera-modal"
+        id="mobile-camera-modal"
+        aria-hidden="true"
+    >
+        <div class="mobile-camera-modal-card">
 
+            <h2>Connect Your Phone</h2>
+
+            <p>
+                Scan this QR code with your phone to use
+                the phone's rear camera with PawAI.
+            </p>
+
+            <div id="mobile-camera-qr">
+                Preparing QR code...
+            </div>
+
+            <div id="mobile-camera-live-wrap" class="mobile-camera-live-wrap" hidden>
+                <video
+                    id="mobile-camera-popup-preview"
+                    autoplay
+                    playsinline
+                    muted
+                ></video>
+
+                <div id="mobile-camera-recording-indicator" class="mobile-camera-recording-indicator" hidden>
+                    <span></span>
+                    Recording
+                </div>
+            </div>
+
+            <div
+                class="mobile-camera-session"
+                id="mobile-camera-session"
+            >
+                Creating session...
+            </div>
+
+            <p id="mobile-camera-status">
+                Waiting for your phone...
+            </p>
+
+            <button
+                type="button"
+                class="hero-ghost-btn mobile-camera-close"
+                id="mobile-camera-close"
+            >
+                Close
+            </button>
+
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="../assets/js/api.js"></script>
     <script>
         // api.js provides the backend API, but its shared application theme must
@@ -930,9 +1105,12 @@
         let activeDogPet = null;
 
         (async function initialiseDogHome() {
-            const user = await PawAIAuth.requireUser({ loginPage: '02-login.html' });
+            const user = await PawAIAuth.requireUser();
             if (!user) return;
-            PawAIAuth.bindLogout('#logoutLink', { loginPage: '../index.html' });
+
+            PawAIAuth.bindLogout('.logout-btn', {
+                loginPage: 'landing-page.html'
+            });
 
             const petName = document.getElementById('pet-name');
             const heroText = document.querySelector('#capture-card p');
@@ -951,45 +1129,12 @@
                     const details = [activeDogPet.breed, activeDogPet.age, activeDogPet.gender]
                         .filter(Boolean)
                         .join(' · ');
-                    heroText.textContent = `Record a moment, upload a video, or choose a file. PawAI will analyse ${activeDogPet.name}'s mood${details ? ` (${details})` : ''}.`;
+                    heroText.textContent = `Record a moment, upload a sound, or choose a photo. PawAI keeps ${activeDogPet.name}'s media history together${details ? ` (${details})` : ''}.`;
                 }
             } catch (error) {
                 if (petName) petName.textContent = `${user.username}.`;
             }
         })();
-
-        // -----------------------------------------------------------------
-        // UPLOAD + REDIRECT  (shared by all media paths)
-        // -----------------------------------------------------------------
-        // Uploads `file` to the backend, obtains the real media_id from the
-        // response, then redirects to status.html?media_id=<id>.
-        // On upload failure the error is shown on this page and we stay here.
-        async function uploadAndRedirect(file) {
-            const petId = activeDogPet ? activeDogPet.id : null;
-
-            showHomeMessage('Uploading to PawAI…');
-
-            let uploaded;
-            try {
-                uploaded = await PawAIApi.uploadMedia(file, 'dog', petId);
-            } catch (err) {
-                showHomeMessage(
-                    `Upload failed: ${err.message || 'Unknown error. Please try again.'}`,
-                    true
-                );
-                return;
-            }
-
-            // The backend MediaOut schema returns the record id as `id`.
-            const mediaId = uploaded && uploaded.id;
-            if (!mediaId) {
-                showHomeMessage('Upload succeeded but no media ID was returned. Please try again.', true);
-                return;
-            }
-
-            // Hand off to the status page with the real media_id in the URL.
-            window.location.href = `status.html?media_id=${encodeURIComponent(mediaId)}`;
-        }
 
         // --- NAVBAR SCROLL BACKGROUND ---
         const navbar = document.querySelector('.navbar');
@@ -1028,6 +1173,12 @@
         // --- CAMERA + VIDEO RECORDING + AUDIO RECORDING + UPLOAD LOGIC ---
         const startCamBtn = document.getElementById('start-camera-btn');
         const recordVideoBtn = document.getElementById('record-video-btn');
+        const mobileCameraBtn = document.getElementById('mobile-camera-btn');
+        const mobileCameraModal = document.getElementById('mobile-camera-modal');
+        const mobileCameraQR = document.getElementById('mobile-camera-qr');
+        const mobileCameraSession = document.getElementById('mobile-camera-session');
+        const mobileCameraStatus = document.getElementById('mobile-camera-status');
+        const mobileCameraClose = document.getElementById('mobile-camera-close');
         const stopVideoBtn = document.getElementById('stop-video-btn');
         const recordAudioBtn = document.getElementById('record-audio-btn');
         const stopAudioBtn = document.getElementById('stop-audio-btn');
@@ -1037,6 +1188,21 @@
         const galleryInput = document.getElementById('galleryInput');
         const homeMsg = document.getElementById('homeMessage');
         const uploadPreview = document.getElementById('upload-preview');
+        const mobileCameraPreview = document.getElementById('mobile-camera-preview');
+        const mobileCameraPopupPreview = document.getElementById('mobile-camera-popup-preview');
+        const mobileCameraLiveWrap = document.getElementById('mobile-camera-live-wrap');
+        const mobileCameraRecordingIndicator = document.getElementById('mobile-camera-recording-indicator');
+
+        let laptopMobileSocket = null;
+        let laptopPeerConnection = null;
+
+        const laptopRtcConfiguration = {
+            iceServers: [
+                {
+                    urls: 'stun:stun.l.google.com:19302'
+                }
+            ]
+        };
 
         let cameraStream = null;
         let videoRecorder = null;
@@ -1044,9 +1210,6 @@
         discardCameraBtn.hidden = true;
         let audioRecorder = null;
         let recordedChunks = [];
-	
-        // predictDogImage removed: images now go through the backend upload
-        // flow (uploadAndRedirect) like videos, not directly to the ML API.
 
         function showHomeMessage(text, isError = false) {
             homeMsg.textContent = text;
@@ -1055,6 +1218,102 @@
             homeMsg.style.color = isError ? '#a96849' : '';
         }
 
+        async function openMobileCameraPairing() {
+            try {
+                mobileCameraBtn.disabled = true;
+
+                mobileCameraModal.classList.add('show');
+                mobileCameraModal.setAttribute('aria-hidden', 'false');
+
+                mobileCameraQR.innerHTML = 'Creating session...';
+                mobileCameraSession.textContent = 'Creating secure session...';
+                mobileCameraStatus.textContent = 'Waiting for session...';
+
+                const apiBase =
+                    window.PAWAI_API_BASE_URL ||
+                    `${window.location.protocol}//${window.location.hostname}:8000`;
+
+                const response = await fetch(
+                    `${apiBase}/api/mobile/session`,
+                    {
+                        method: 'POST',
+                        credentials: 'include'
+                    }
+);
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Session creation failed: HTTP ${response.status}`
+                    );
+                }
+
+                const data = await response.json();
+
+                const sessionId = data.session_id;
+                const sessionToken = data.session_token;
+                connectLaptopMobileSocket(sessionId);
+                /*
+                * For now this uses the current frontend origin.
+                *
+                * During LAN testing we will open PawAI through the laptop's
+                * LAN address so the phone can reach this same frontend.
+                */
+                const mobileUrl =
+                    `http://10.77.184.23:5501/frontend/dog/mobile-camera.html` +
+                    `?session=${encodeURIComponent(sessionId)}` +
+                    `&token=${encodeURIComponent(sessionToken)}`;
+
+                mobileCameraQR.innerHTML = '';
+
+                new QRCode(mobileCameraQR, {
+                    text: mobileUrl,
+                    width: 200,
+                    height: 200,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+
+                mobileCameraSession.textContent =
+                    `Session: ${sessionId}`;
+
+                mobileCameraStatus.textContent =
+                    'Scan the QR code with your phone.';
+
+            } catch (error) {
+                console.error(
+                    'Mobile camera pairing error:',
+                    error
+                );
+
+                mobileCameraStatus.textContent =
+                    'Could not create mobile camera session.';
+
+                mobileCameraSession.textContent =
+                    error.message || 'Unknown error';
+
+                mobileCameraQR.innerHTML =
+                    'Session creation failed.';
+            } finally {
+                mobileCameraBtn.disabled = false;
+            }
+        }
+        // ================================
+        // STEP 4G — MOBILE CAMERA BUTTON
+        // ================================
+        mobileCameraBtn.addEventListener(
+            'click',
+            openMobileCameraPairing
+        );
+
+        mobileCameraClose.addEventListener(
+            'click',
+            () => {
+                mobileCameraModal.classList.remove('show');
+                mobileCameraModal.setAttribute(
+                    'aria-hidden',
+                    'true'
+                );
+            }
+        );
         function getSupportedMimeType(kind) {
             const types = kind === 'audio'
                 ? [
@@ -1071,9 +1330,60 @@
             return types.find(type => MediaRecorder.isTypeSupported(type)) || '';
         }
 
-        // saveAnalysisBlob and redirectToStatus replaced by uploadAndRedirect.
-        // Media is now uploaded directly to the backend; the media_id travels
-        // to status.html as a URL query parameter instead of IndexedDB.
+        async function saveAnalysisBlob(blob, source, fileName) {
+            const file = blob instanceof File
+                ? blob
+                : new File([blob], fileName || 'pawai-recording.webm', {
+                    type: blob.type || 'application/octet-stream'
+                });
+
+            sessionStorage.setItem('pawai-analysis-source', source || '');
+            sessionStorage.setItem('pawai-upload-name', file.name);
+
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('PawAIAnalysisDB', 2);
+
+                request.onblocked = () => console.warn('PawAIAnalysisDB open is blocked by another tab.');
+
+                request.onupgradeneeded = () => {
+                    const db = request.result;
+                    if (!db.objectStoreNames.contains('media')) {
+                        db.createObjectStore('media');
+                    }
+                };
+
+                request.onerror = () => {
+                    console.error('IndexedDB open failed:', request.error);
+                    reject(request.error);
+                };
+
+                request.onsuccess = () => {
+                    const db = request.result;
+                    if (!db.objectStoreNames.contains('media')) {
+                        db.close();
+                        reject(new Error("IndexedDB store 'media' missing"));
+                        return;
+                    }
+                    const transaction = db.transaction('media', 'readwrite');
+                    transaction.objectStore('media').put({
+                        blob: file,
+                        fileName: file.name
+                    }, 'latest');
+                    transaction.oncomplete = () => {
+                        db.close();
+                        resolve();
+                    };
+                    transaction.onerror = () => {
+                        db.close();
+                        reject(transaction.error);
+                    };
+                };
+            });
+        }
+
+        function redirectToStatus(source, fileName) {
+            window.location.href = "status.html";
+        }
 
         function stopCameraStream() {
             if (cameraStream) {
@@ -1166,6 +1476,12 @@
                 return;
             }
 
+            const liveTrack = cameraStream.getVideoTracks().find(t => t.readyState === 'live');
+            if (!liveTrack) {
+                showHomeMessage("Camera stream is not active. Click Start Camera again.", true);
+                return;
+            }
+
             const mimeType = getSupportedMimeType('video');
 
             try {
@@ -1186,17 +1502,76 @@
                 }
             };
 
-            videoRecorder.onstop = async () => {
-                const blobType = videoRecorder.mimeType || mimeType || 'video/webm';
-                const recordedBlob = new Blob(recordedChunks, { type: blobType });
-                const recordedFile = new File([recordedBlob], 'pawai-recording.webm', { type: blobType });
+videoRecorder.onstop = async () => {
+    const blobType = videoRecorder.mimeType || mimeType || 'video/webm';
+    const recordedBlob = new Blob(recordedChunks, { type: blobType });
 
-                stopCameraStream();
-                showHomeMessage('Uploading recording…');
-                await uploadAndRedirect(recordedFile);
+    try {
+        showHomeMessage("Uploading your video...");
+
+        // Convert the recorded Blob into a File
+        const videoFile = new File(
+            [recordedBlob],
+            'pawai-recording.webm',
+            {
+                type: blobType
+            }
+        );
+
+        // Upload the recorded video through the same backend
+        // endpoint used by gallery video uploads.
+        const uploadedMedia = await PawAIApi.uploadMedia(
+            videoFile,
+            "dog",
+            activeDogPet ? activeDogPet.id : null
+        );
+
+        console.log("Camera video uploaded:", uploadedMedia);
+
+        const mediaId = uploadedMedia.id;
+
+        if (!mediaId) {
+            throw new Error("Backend did not return a media ID.");
+        }
+
+        // Camera is no longer needed after recording.
+        stopCameraStream();
+
+        showHomeMessage("Video uploaded. Opening analysis...");
+
+        // Send the media ID to status.html.
+        setTimeout(() => {
+            window.location.href =
+                `status.html?media_id=${encodeURIComponent(mediaId)}`;
+        }, 350);
+
+    } catch (err) {
+        console.error("Could not upload camera recording:", err);
+
+        stopCameraStream();
+
+        showHomeMessage(
+            `Video upload failed: ${err.message}`,
+            true
+        );
+    }
+};
+
+            videoRecorder.onerror = event => {
+                console.error('MediaRecorder runtime error:', event.error || event);
+                showHomeMessage('Recording failed: ' + ((event.error && event.error.message) || 'unknown recorder error'), true);
             };
 
-            videoRecorder.start();
+            try {
+                // timeslice => chunks arrive every second, so nothing is lost
+                videoRecorder.start(1000);
+            } catch (err) {
+                console.error('MediaRecorder.start failed:', err);
+                showHomeMessage('Could not start recording: ' + err.message, true);
+                videoRecorder = null;
+                return;
+            }
+            console.log('Video recording started, mimeType:', videoRecorder.mimeType);
 
             recordVideoBtn.hidden = true;
             recordVideoBtn.disabled = true;
@@ -1467,7 +1842,6 @@
 
                     const blobType = audioRecorder.mimeType || mimeType || 'audio/webm';
                     const recordedBlob = new Blob(recordedChunks, { type: blobType });
-                    const recordedFile = new File([recordedBlob], 'pawai-audio-recording.webm', { type: blobType });
 
                     if (audioStream) {
                         audioStream.getTracks().forEach(track => track.stop());
@@ -1475,9 +1849,25 @@
                     }
 
                     stopAudioVisualizer();
-                    resetAudioRecorderUI();
-                    showHomeMessage('Uploading audio…');
-                    await uploadAndRedirect(recordedFile);
+
+                    try {
+                        await saveAnalysisBlob(
+                            recordedBlob,
+                            'audio-recording',
+                            'pawai-audio-recording.webm'
+                        );
+
+                        resetAudioRecorderUI();
+                        showHomeMessage("Audio submitted. Opening Status...");
+
+                        setTimeout(() => {
+                            redirectToStatus('audio-recording', 'pawai-audio-recording.webm');
+                        }, 350);
+                    } catch (err) {
+                        console.error("Could not save audio:", err);
+                        resetAudioRecorderUI();
+                        showHomeMessage("The audio recording could not be prepared for submission.", true);
+                    }
                 };
 
                 audioRecorder.start(250);
@@ -1560,6 +1950,335 @@
             showHomeMessage("Audio recording discarded.");
         }
 
+        function connectLaptopMobileSocket(sessionId) {
+
+            const protocol =
+                window.location.protocol === 'https:'
+                    ? 'wss:'
+                    : 'ws:';
+
+            const host = window.location.hostname;
+
+            const wsUrl =
+                `${protocol}//${host}:8000` +
+                `/api/mobile/ws/${encodeURIComponent(sessionId)}` +
+                `?role=laptop`;
+
+            console.log(
+                'Connecting laptop to mobile WebSocket:',
+                wsUrl
+            );
+
+            laptopMobileSocket =
+                new WebSocket(wsUrl);
+
+
+            laptopMobileSocket.onopen = () => {
+
+                console.log(
+                    'Laptop mobile-camera WebSocket connected.'
+                );
+
+            };
+
+
+            laptopMobileSocket.onmessage =
+                async (event) => {
+
+                    const message =
+                        JSON.parse(event.data);
+
+                    console.log(
+                        'Laptop received:',
+                        message
+                    );
+
+
+                    if (message.type === 'connected') {
+
+                        console.log(
+                            'Laptop signaling connection ready.'
+                        );
+
+                    }
+
+
+                    if (message.type === 'peer_connected') {
+
+                        showHomeMessage(
+                            'Mobile camera connected. Starting live video...'
+                        );
+
+                    }
+
+                    if (message.type === 'recording_started') {
+
+                        mobileCameraRecordingIndicator.hidden = false;
+
+                        mobileCameraStatus.textContent =
+                            'Recording on phone...';
+
+                        showHomeMessage(
+                            'Phone is recording.'
+                        );
+                    }
+
+                    if (message.type === 'recording_stopped') {
+
+                        mobileCameraRecordingIndicator.hidden = true;
+
+                        mobileCameraStatus.textContent =
+                            'Recording complete. Waiting for submission...';
+
+                        showHomeMessage(
+                            'Phone recording complete.'
+                        );
+                    }
+                    if (message.type === 'recording_submitted') {
+
+                        // Recording indicator hide
+                        mobileCameraRecordingIndicator.hidden = true;
+
+                        // Update popup
+                        mobileCameraStatus.textContent =
+                            'Recording received. AI analysis is pending.';
+
+                        showHomeMessage(
+                            'Recording received. Starting AI analysis...'
+                        );
+
+                        // Keep the popup open, but remove live video
+                        if (mobileCameraPopupPreview) {
+                            mobileCameraPopupPreview.srcObject = null;
+                        }
+
+                        mobileCameraLiveWrap.hidden = true;
+
+                        // Hide QR/session information
+                        mobileCameraQR.style.display = 'none';
+
+                        mobileCameraSession.textContent =
+                            'Recording received';
+
+                        // Show analysis state
+                        mobileCameraStatus.textContent =
+                            'Analyzing your pet... Recording received. AI model integration is pending.';
+                    
+                        if (
+                            laptopMobileSocket &&
+                            laptopMobileSocket.readyState === WebSocket.OPEN
+                        ) {
+                            laptopMobileSocket.send(
+                                JSON.stringify({
+                                    type: 'submission_complete',
+                                    session_id: message.session_id
+                                })
+                            );
+                        }
+                    }
+
+                    if (message.type === 'offer') {
+
+                        await handleMobileWebRTCOffer(
+                            message.sdp
+                        );
+
+                    }
+
+
+                    if (message.type === 'ice_candidate') {
+
+                        if (!laptopPeerConnection) {
+                            return;
+                        }
+
+                        try {
+
+                            await laptopPeerConnection
+                                .addIceCandidate(
+                                    new RTCIceCandidate(
+                                        message.candidate
+                                    )
+                                );
+
+                        } catch (error) {
+
+                            console.error(
+                                'Laptop ICE candidate error:',
+                                error
+                            );
+
+                        }
+
+                    }
+
+                };
+
+            
+
+            laptopMobileSocket.onerror = (error) => {
+
+                console.error(
+                    'Laptop mobile WebSocket error:',
+                    error
+                );
+
+                showHomeMessage(
+                    'Mobile camera connection error.',
+                    true
+                );
+
+            };
+
+
+            laptopMobileSocket.onclose = () => {
+
+                console.log(
+                    'Laptop mobile WebSocket closed.'
+                );
+
+            };
+        }
+
+        async function handleMobileWebRTCOffer(remoteSdp) {
+
+            console.log(
+                'Received WebRTC offer from mobile.'
+            );
+
+
+            laptopPeerConnection =
+                new RTCPeerConnection(
+                    laptopRtcConfiguration
+                );
+
+
+            // Receive mobile camera stream
+            laptopPeerConnection.ontrack = (event) => {
+                console.log('Received mobile media track.');
+
+                if (event.streams && event.streams[0]) {
+
+                    const mobileStream = event.streams[0];
+
+                    mobileCameraPopupPreview.srcObject = mobileStream;
+                    mobileCameraQR.style.display = 'none';
+                    mobileCameraSession.textContent = 'Phone camera connected';
+                    mobileCameraStatus.textContent = 'Live camera is ready.';
+                    mobileCameraLiveWrap.hidden = false;
+
+                    mobileCameraPopupPreview
+                        .play()
+                        .catch((error) => {
+                            console.warn(
+                                'Mobile popup video autoplay was blocked:',
+                                error
+                            );
+                        });
+
+                    showHomeMessage('Mobile camera is live.');
+                }
+            };
+
+
+            // Send ICE candidates to mobile
+            laptopPeerConnection.onicecandidate =
+                (event) => {
+
+                    if (
+                        event.candidate &&
+                        laptopMobileSocket &&
+                        laptopMobileSocket.readyState ===
+                            WebSocket.OPEN
+                    ) {
+
+                        laptopMobileSocket.send(
+                            JSON.stringify({
+                                type: 'ice_candidate',
+                                candidate: event.candidate
+                            })
+                        );
+
+                    }
+                };
+
+
+            laptopPeerConnection
+                .onconnectionstatechange = () => {
+
+                    console.log(
+                        'Laptop WebRTC state:',
+                        laptopPeerConnection.connectionState
+                    );
+
+
+                    if (
+                        laptopPeerConnection.connectionState ===
+                        'connected'
+                    ) {
+
+                        showHomeMessage(
+                            'Mobile camera is live on your laptop.'
+                        );
+
+                    }
+
+
+                    if (
+                        laptopPeerConnection.connectionState ===
+                        'failed'
+                    ) {
+
+                        showHomeMessage(
+                            'Mobile camera connection failed.',
+                            true
+                        );
+
+                    }
+                };
+
+
+            // Apply mobile offer
+            await laptopPeerConnection
+                .setRemoteDescription(
+                    new RTCSessionDescription(
+                        remoteSdp
+                    )
+                );
+
+
+            // Create laptop answer
+            const answer =
+                await laptopPeerConnection
+                    .createAnswer();
+
+
+            await laptopPeerConnection
+                .setLocalDescription(answer);
+
+
+            // Send answer back to mobile
+            if (
+                laptopMobileSocket &&
+                laptopMobileSocket.readyState ===
+                    WebSocket.OPEN
+            ) {
+
+                laptopMobileSocket.send(
+                    JSON.stringify({
+                        type: 'answer',
+                        sdp:
+                            laptopPeerConnection
+                                .localDescription
+                    })
+                );
+
+                console.log(
+                    'WebRTC answer sent to mobile.'
+                );
+            }
+        }
+
         pauseAudioBtn.addEventListener('click', toggleAudioPause);
         submitAudioBtn.addEventListener('click', stopAudioRecording);
         discardAudioBtn.addEventListener('click', discardAudioRecording);
@@ -1580,33 +2299,427 @@
             galleryInput.click();
         });
 
-        galleryInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            galleryInput.value = ''; // reset so the same file can be re-selected
+       galleryInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
 
-            if (!file) return;
+    if (!file) {
+        return;
+    }
 
-            if (cameraStream || videoRecorder) {
-                showHomeMessage('Upload Media is unavailable while the camera is active.', true);
-                return;
-            }
+    if (cameraStream || videoRecorder) {
+        galleryInput.value = '';
+        showHomeMessage(
+            "Upload Media is unavailable while the camera is active.",
+            true
+        );
+        return;
+    }
 
-            const isImage = file.type.startsWith('image/');
-            const isVideo = file.type.startsWith('video/');
+    const allowedTypes =
+        file.type.startsWith('image/') ||
+        file.type.startsWith('video/');
 
-            if (!isImage && !isVideo) {
-                showHomeMessage('Please select an image or video file.', true);
-                return;
-            }
+    if (!allowedTypes) {
+        galleryInput.value = '';
+        showHomeMessage(
+            "Please select an image or video file.",
+            true
+        );
+        return;
+    }
 
-            uploadPreview.style.display = 'block';
-            uploadPreview.textContent = `Selected: ${file.name}`;
+    uploadPreview.style.display = 'block';
+    uploadPreview.textContent = `Selected: ${file.name}`;
 
-            // Both images and videos go through the backend upload flow.
-            // The backend currently only supports video analysis, but uploading
-            // an image still creates a media record and lands on the status page.
-            await uploadAndRedirect(file);
+    showHomeMessage("Uploading your media...");
+
+    try {
+        /*
+         * IMPORTANT:
+         * Upload the file to the backend first.
+         * The backend creates the media database record and
+         * returns the UUID that status.html needs.
+         */
+        const uploadedMedia = await PawAIApi.uploadMedia(
+            file,
+            "dog",
+            activeDogPet ? activeDogPet.id : null
+        );
+
+        console.log("Uploaded media:", uploadedMedia);
+
+        const mediaId = uploadedMedia.id;
+
+        if (!mediaId) {
+            throw new Error(
+                "Backend did not return a media ID."
+            );
+        }
+
+        showHomeMessage(
+            "Media uploaded successfully. Opening analysis..."
+        );
+
+        /*
+         * IMPORTANT:
+         * Pass the media_id to status.html.
+         */
+        setTimeout(() => {
+            window.location.href =
+                `status.html?media_id=${encodeURIComponent(mediaId)}`;
+        }, 350);
+
+    } catch (err) {
+        console.error(
+            "Could not upload selected media:",
+            err
+        );
+
+        showHomeMessage(
+            `Media upload failed: ${err.message}`,
+            true
+        );
+
+        uploadPreview.style.display = 'none';
+        galleryInput.value = '';
+    }
+});
+
+    </script>
+    <script>
+(function () {
+    const hero = document.getElementById('hero-section');
+    const canvas = document.getElementById('heroFrames');
+    if (!hero || !canvas) return;
+
+    /* ---- Layout / sprite config ---- */
+    const ZOOM      = 0.92;      // 1 = frame fills the hero. Smaller = smaller dog.
+    const ALIGN_X   = 1.0;      // 0 = left edge, 0.5 = centre, 1.0 = right edge, >1 = further right
+    const ALIGN_Y   = 1.0;       // 1.0 = bottom-aligned
+    const SPRITE    = '../assets/hero-sprite-beagle.jpg?v=1';
+    const TOTAL     = 72;        // beagle sprite: 8000px / 72 = 111.11px per tile (fractional, handled by fw/tw)
+    const LEFT_FRAME  = 0;       // frame shown when cursor is at the left of the hero (looking left)
+    const IDLE_FRAME  = 40;      // default forward-facing pose
+    const RIGHT_FRAME = 71;      // frame shown when cursor is at the right
+    const FOLLOW    = 20;        // easing speed toward cursor target (higher = snappier)
+    const RETURN    = 10;        // easing speed returning to idle
+    /* -------------------------------- */
+
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ctx    = canvas.getContext('2d');
+
+    let sprite = null, ready = false, fw = 0, fh = 0, tw = 0;
+    const tx = (i) => Math.round(i * fw);   // left-edge pixel of tile i
+
+    let pos = IDLE_FRAME, target = IDLE_FRAME, rate = RETURN;
+    let running = false, lastT = null;
+    let fx = 0, fy = 0, fwPx = 0, fhPx = 0;
+    const BK      = 0.5;     // backdrop drawn at this fraction of real size (blurred anyway)
+    const PAD     = 40;       // px overscan so blur never reveals an edge
+    let lastBack  = -1;
+
+    // ── Main canvas: position:absolute already set in CSS; just set the mask ──
+    const fade = 'linear-gradient(to right, transparent, #000 13%, #000 87%, transparent),' +
+                 'linear-gradient(to bottom, transparent, #000 16%)';
+    canvas.style.webkitMaskImage = fade;
+    canvas.style.maskImage       = fade;
+    canvas.style.webkitMaskComposite = 'source-in';
+    canvas.style.maskComposite       = 'intersect';
+
+    // ── Backdrop canvas: blurred ambient extension of the sprite edges ──
+    const back = document.createElement('canvas');
+    back.setAttribute('aria-hidden', 'true');
+    back.style.cssText = 'position:absolute;z-index:-1;pointer-events:none;filter:blur(8px)';
+    hero.insertBefore(back, canvas);
+    const bctx = back.getContext('2d');
+
+    // ── Offscreen scratch canvas for edge-pixel sampling ──
+    const tmp = document.createElement('canvas');
+    const tctx = tmp.getContext('2d');
+
+    function smooth(g) {
+        g.imageSmoothingEnabled = true;
+        g.imageSmoothingQuality = 'high';
+    }
+
+    function strip(sx, sy, sw, sh, dw, dh) {
+        tmp.width = dw; tmp.height = dh;
+        tctx.imageSmoothingEnabled = true;
+        tctx.imageSmoothingQuality = 'high';
+        tctx.drawImage(sprite, sx, sy, sw, sh, 0, 0, dw, dh);
+        return tmp;
+    }
+
+    function drawBackdrop(i) {
+        if (i === lastBack) return;
+        lastBack = i;
+        const sx = tx(i), W = back.width, H = back.height;
+        const r = fx + fwPx, b = fy + fhPx;
+        bctx.clearRect(0, 0, W, H);
+        smooth(bctx);
+        if (fx > 0) bctx.drawImage(strip(sx,           0,     6,  fh, 1, 6), 0,0,1,6, 0,  fy, fx,   fhPx);
+        if (r  < W) bctx.drawImage(strip(sx+tw-6,      0,     6,  fh, 1, 6), 0,0,1,6, r,  fy, W-r,  fhPx);
+        if (fy > 0) {
+            bctx.drawImage(strip(sx,       0,     tw,  6, 6, 1), 0,0,6,1, fx, 0,   fwPx, fy);
+            if (fx > 0) bctx.drawImage(strip(sx,      0,      6,  6, 1, 1), 0,0,1,1, 0,  0,  fx,  fy);
+            if (r  < W) bctx.drawImage(strip(sx+tw-6, 0,      6,  6, 1, 1), 0,0,1,1, r,  0,  W-r, fy);
+        }
+        bctx.drawImage(sprite, sx, 0, tw, fh, fx, fy, fwPx, fhPx);
+        if (b < H) {
+            bctx.drawImage(strip(sx,       fh-6,  tw,  6, 6, 1), 0,0,6,1, fx, b,   fwPx, H-b);
+            if (fx > 0) bctx.drawImage(strip(sx,      fh-6,   6,  6, 1, 1), 0,0,1,1, 0,  b,  fx,  H-b);
+            if (r  < W) bctx.drawImage(strip(sx+tw-6, fh-6,   6,  6, 1, 1), 0,0,1,1, r,  b,  W-r, H-b);
+        }
+    }
+
+    function render() {
+        if (!ready) return;
+        const p = Math.min(Math.max(pos, 0), TOTAL - 1);
+        const i = Math.floor(p), f = p - i;
+        ctx.globalAlpha = 1;
+        ctx.drawImage(sprite, tx(i), 0, tw, fh, 0, 0, canvas.width, canvas.height);
+        if (f > 0.001 && i < TOTAL - 1) {
+            ctx.globalAlpha = f;
+            ctx.drawImage(sprite, tx(i + 1), 0, tw, fh, 0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1;
+        }
+        drawBackdrop(i);
+    }
+
+    function layout() {
+        if (!ready) return;
+        const W = hero.clientWidth, H = hero.clientHeight;
+        if (!W || !H) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const s   = Math.min(W / tw, H / fh) * ZOOM;
+        const w   = tw * s, h = fh * s;
+        const left = (W - w) * ALIGN_X;
+        const top  = (H - h) * ALIGN_Y;
+
+        // position the main canvas
+        canvas.style.left   = left + 'px';
+        canvas.style.top    = top  + 'px';
+        canvas.style.width  = w    + 'px';
+        canvas.style.height = h    + 'px';
+        canvas.width  = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+
+        // position the backdrop
+        back.style.left   = (-PAD)          + 'px';
+        back.style.top    = (-PAD)          + 'px';
+        back.style.width  = (W + PAD * 2)   + 'px';
+        back.style.height = (H + PAD * 2)   + 'px';
+        back.width  = Math.round((W + PAD * 2) * BK);
+        back.height = Math.round((H + PAD * 2) * BK);
+
+        smooth(ctx); smooth(bctx);
+        fx = Math.round((left + PAD) * BK);
+        fy = Math.round((top  + PAD) * BK);
+        fwPx = Math.round(w * BK);
+        fhPx = Math.round(h * BK);
+        lastBack = -1;
+        render();
+    }
+
+    // Frame-rate independent exponential easing
+    function loop(t) {
+        if (!running) return;
+        if (lastT === null) lastT = t;
+        const dt = Math.min((t - lastT) / 1000, 0.05);
+        lastT = t;
+        pos += (target - pos) * (1 - Math.exp(-rate * dt));
+        if (Math.abs(target - pos) < 0.01) {
+            pos = target; running = false; lastT = null; render(); return;
+        }
+        render();
+        requestAnimationFrame(loop);
+    }
+
+    function go(to, r) {
+        target = to; rate = r;
+        if (!running && ready) { running = true; lastT = null; requestAnimationFrame(loop); }
+    }
+
+    function frameFor(clientX) {
+        const r = hero.getBoundingClientRect();
+        const n = Math.min(Math.max((clientX - r.left) / r.width, 0), 1);
+        return n < 0.5
+            ? LEFT_FRAME  + (IDLE_FRAME  - LEFT_FRAME)  * (n / 0.5)
+            : IDLE_FRAME  + (RIGHT_FRAME - IDLE_FRAME)  * ((n - 0.5) / 0.5);
+    }
+
+    const idle = () => go(IDLE_FRAME, RETURN);
+
+    // ── Load the sprite sheet ──
+    sprite = new Image();
+    sprite.onload = () => {
+        fw = sprite.naturalWidth / TOTAL;
+        fh = sprite.naturalHeight;
+        tw = Math.floor(fw) - (fw % 1 ? 1 : 0);
+        ready = true;
+        // Hide the static fallback image now that the animated sprite is ready
+        const staticImg = hero.querySelector('.hero-animal');
+        if (staticImg) staticImg.style.display = 'none';
+        layout();
+    };
+    sprite.onerror = () => {
+        console.error('hero-tracking: sprite sheet not found at', sprite.src,
+            '— falling back to static hero-section.png');
+        // Leave the static <img class="hero-animal"> visible as fallback
+        canvas.style.display = 'none';
+        back.style.display   = 'none';
+    };
+    sprite.src = SPRITE;
+
+    // ── Cursor tracking ──
+    if (!reduce) {
+        hero.addEventListener('pointermove', (e) => {
+            if (e.pointerType === 'touch') return;
+            if (document.querySelector('.auth-modal.is-open, .mobile-camera-modal.show')) return idle();
+            go(frameFor(e.clientX), FOLLOW);
         });
+        hero.addEventListener('pointerleave', idle);
+        window.addEventListener('blur', idle);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) idle(); });
+    }
+
+    window.addEventListener('resize', layout);
+})();
+
+
+/* ==================================================================
+ * FEATURES SECTION — hero-sprite-2.jpg
+ * 32 full-scene frames (8000x140 => 250x140 per tile, 16:9).
+ * Cursor left -> right scrubs frame 0 -> 31.
+ * Self-injects a canvas into .features-visual; no HTML changes needed.
+ * ================================================================== */
+(function () {
+    const section = document.getElementById('features-section');
+    const holder  = section && section.querySelector('.features-visual');
+    if (!section || !holder) return;
+
+    const SPRITE      = '../assets/hero-sprite-2.jpg?v=7';
+    const TOTAL       = 32;       // frames in hero-sprite-2.jpg
+    const START_FRAME = 0;        // cursor at extreme left of section
+    const IDLE_FRAME  = 31;       // default pose + cursor at extreme right
+    const FOLLOW      = 20;
+    const RETURN      = 10;
+    const SIZE        = 1.1;      // canvas height as a multiple of holder height (dog ~83% of frame height)
+    const DOG_X       = 0.24;     // dog center at 24% of section width (0 = left, 0.5 = middle)
+    const OFFSET_Y    = 130;      // px vertical nudge (positive = down) -- tune this
+
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const canvas = document.createElement('canvas');
+    canvas.setAttribute('aria-hidden', 'true');
+    canvas.style.cssText = 'position:absolute;left:50%;top:50%;pointer-events:none;z-index:1;';
+    // Frame is wide (16:9) with peach bg, so fade the sides tightly around the dog
+    // so the canvas never covers the text column.
+    const fade = 'radial-gradient(ellipse 36% 60% at 50% 55%, #000 55%, rgba(0,0,0,.5) 78%, transparent 100%)';
+    canvas.style.webkitMaskImage = fade;
+    canvas.style.maskImage       = fade;
+    holder.style.position        = 'relative'; // ensure absolute children work
+    holder.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    let sprite = null, ready = false, fw = 0, fh = 0, tw = 0;
+    const tx = (i) => Math.round(i * fw);
+    let pos = IDLE_FRAME, target = IDLE_FRAME, rate = RETURN;
+    let running = false, lastT = null;
+
+    function render() {
+        if (!ready) return;
+        const p = Math.min(Math.max(pos, 0), TOTAL - 1);
+        const i = Math.floor(p), f = p - i;
+        ctx.globalAlpha = 1;
+        ctx.drawImage(sprite, tx(i), 0, tw, fh, 0, 0, canvas.width, canvas.height);
+        if (f > 0.001 && i < TOTAL - 1) {
+            ctx.globalAlpha = f;
+            ctx.drawImage(sprite, tx(i + 1), 0, tw, fh, 0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    function layout() {
+        if (!ready) return;
+        const H   = holder.clientHeight || section.clientHeight * 0.72;
+        if (!H) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const s   = (H / fh) * SIZE;
+        const w   = tw * s, h = fh * s;
+        canvas.style.width     = w + 'px';
+        canvas.style.height    = h + 'px';
+
+        // dog center always sits at DOG_X of the section width
+        const hr = holder.getBoundingClientRect();
+        const sr = section.getBoundingClientRect();
+        const shiftX = (sr.left + sr.width * DOG_X) - (hr.left + hr.width / 2);
+        canvas.style.transform = `translate(calc(-50% + ${shiftX}px), calc(-50% + ${OFFSET_Y}px))`;
+
+        canvas.width  = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        render();
+    }
+
+    function loop(t) {
+        if (!running) return;
+        if (lastT === null) lastT = t;
+        const dt = Math.min((t - lastT) / 1000, 0.05);
+        lastT = t;
+        pos += (target - pos) * (1 - Math.exp(-rate * dt));
+        if (Math.abs(target - pos) < 0.01) {
+            pos = target; running = false; lastT = null; render(); return;
+        }
+        render();
+        requestAnimationFrame(loop);
+    }
+
+    function go(to, r) {
+        target = to; rate = r;
+        if (!running && ready) { running = true; lastT = null; requestAnimationFrame(loop); }
+    }
+
+    // Cursor position across the section (left -> right) scrubs frame 0 -> 31
+    function frameFor(clientX) {
+        const r = section.getBoundingClientRect();
+        const n = Math.min(Math.max((clientX - r.left) / r.width, 0), 1);
+        return START_FRAME + (IDLE_FRAME - START_FRAME) * n;
+    }
+
+    const idle = () => go(IDLE_FRAME, RETURN);
+
+    sprite = new Image();
+    sprite.onload = () => {
+        fw = sprite.naturalWidth / TOTAL;   // 8000 / 32 = 250
+        fh = sprite.naturalHeight;          // 140
+        tw = Math.floor(fw) - (fw % 1 ? 1 : 0);
+        ready = true;
+        // Hide the static feature-section.png behind the animated dog
+        const old = holder.querySelector('img');
+        if (old) old.style.display = 'none';
+        layout();
+    };
+    sprite.onerror = () => {
+        console.error('features-tracking: sprite sheet not found at', sprite.src);
+        canvas.remove();
+    };
+    sprite.src = SPRITE;
+
+    if (!reduce) {
+        section.addEventListener('pointermove', (e) => {
+            if (e.pointerType === 'touch') return;
+            if (document.querySelector('.auth-modal.is-open, .mobile-camera-modal.show')) return idle();
+            go(frameFor(e.clientX), FOLLOW);
+        });
+        section.addEventListener('pointerleave', idle);
+        window.addEventListener('blur', idle);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) idle(); });
+    }
+
+    window.addEventListener('resize', layout);
+})();
 
     </script>
 </body>

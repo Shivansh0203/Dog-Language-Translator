@@ -1,3 +1,5 @@
-{
-    "liveServer.settings.port": 5501
-}
+{"liveServer.settings.https": {
+    "enable": false
+},
+"liveServer.settings.port": 5501,
+"liveServer.settings.host": "10.77.184.23"}

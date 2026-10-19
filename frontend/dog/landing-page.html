@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -188,7 +188,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            border: 1px solid var(--peach);
+            border: 1px solid var(--deep);
             border-radius: 999px;
             padding: 11px 21px;
             background: var(--peach);
@@ -218,13 +218,23 @@
             color: #fffaf6;
         }
 
-        .hero:after {
+               .hero:after {
             content: "";
             position: absolute;
             inset: 0;
             z-index: -1;
-            background: linear-gradient(90deg, rgba(25, 20, 18, .28), transparent 60%), linear-gradient(0deg, rgba(12, 12, 12, .25), transparent 52%);
+            background:
+                linear-gradient(90deg, rgba(10, 8, 7, .82) 0%, rgba(10, 8, 7, .6) 38%, rgba(10, 8, 7, 0) 68%),
+                linear-gradient(0deg, rgba(12, 12, 12, .25), transparent 52%);
         }
+        .hero-frames {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
 
         .hero-animal {
             position: absolute;
@@ -240,21 +250,21 @@
             filter: contrast(0.92) sepia(0.1);
         }
 
-        .hero-copy {
+              .hero-copy {
             padding-top: 72px;
         }
 
         .hero-pre, .pill {
             display: inline-block;
             color: var(--peach);
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 600;
             letter-spacing: .16em;
             text-transform: uppercase;
         }
 
         h1, h2, h3, h4, p {
-            margin-top: 0;
+            margin-top: 10px;
         }
 
         h1, h2, h3 {
@@ -273,8 +283,7 @@
             max-width: 410px;
             margin-bottom: 26px;
             color: #e0d8d2;
-            font-size: 12px;
-            line-height: 1.75;
+            font-size: 14px;
         }
 
         .hero .join-btn {
@@ -1092,34 +1101,19 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        /* Authentication modals must stay viewport overlays. api.js applies body > * positioning on some pages; these rules are intentionally scoped to this page. */
-        .auth-modal {
-            position: fixed !important;
-            inset: 0 !important;
-            z-index: 10000 !important;
-            width: 100% !important;
-            height: 100% !important;
-            margin: 0 !important;
-            transform: none !important;
-        }
-
-        .auth-modal.is-open {
-            display: grid !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
     </style>
 </head>
 
 <body>
     <div class="theme-transition-layer" id="themeTransitionLayer" aria-hidden="true"></div>
 
-    <section class="hero" id="hero-section">
-        <img class="hero-animal" src="../assets/hero-section.png" alt="Hero Animal">
+       <section class="hero" id="hero-section">
+        <canvas class="hero-frames" id="heroFrames" aria-hidden="true"></canvas>
+        <div id="pawai-3d"></div>
+       <!-- <img class="hero-animal" src="../assets/hero-section.png" alt="Hero Animal"> -->
         
         <header class="navbar shell">
-            <a class="brand" href="../index.html"><img src="../assets/web-logo-2.png" alt="PawAI logo" class="logo-image"></a>
+            <a class="brand" href="#"><img src="../assets/web-logo.png" alt="PawAI logo" class="logo-image"></a>
             <div class="nav-right">
                 <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to light mode" title="Switch to light mode">
                     <i class="fa-solid fa-sun theme-icon theme-icon-light"></i>
@@ -1341,7 +1335,8 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    
+    <script src="hero-tracking.js"></script>
+
     <script>
         const authModals = document.querySelectorAll('.auth-modal');
         
@@ -1508,7 +1503,277 @@
                 } 
             });
         }
+    </script>
+    <!-- <script type="module" src="./js/landing-3d.js"></script> -->
+            <script>
+    /* Cursor-follower pixel cat (crisp) */
+    (function () {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
+        const SPEED = 360;     // px per second
+        const SCALE = 3;       // billi ka size
+        const STOP_DIST = 44;
+        const STEP_MS = 130;
+
+        const dpr = window.devicePixelRatio || 1;
+        const PX = Math.max(1, Math.round(SCALE * dpr));   // ek sprite-pixel = poore device pixels
+
+        const PAL = { O:'#5e2a0e', o:'#f48f2d', d:'#c86218', k:'#140c08', p:'#ffaaaa', w:'#ffecd2' };
+        const BASE = [
+            "................",
+            "..........O..O..",
+            "..........OoOOoO",
+            "........OooooooO",
+            "........OokookoO",
+            "........OoowpwoO",
+            "..OOOOOOOOOOOOO.",
+            ".OooddooddoooooO",
+            "OoooooooooooooO.",
+            "Oooooooooooooo..",
+            ".OooooooooooooO.",
+            "..OoooooooooooO."
+        ];
+        const LEGS = [
+            ["..OoO.....OoO...", "..OO......OO...."],
+            ["...OoO...OoO....", "...OO.....OO...."]
+        ];
+
+        function sprite(rows, flip) {
+            const w = 16, h = rows.length;
+            const c = document.createElement('canvas');
+            c.width = w * PX; c.height = h * PX;
+            const g = c.getContext('2d');
+            rows.forEach((row, y) => [...row].forEach((ch, x) => {
+                if (!PAL[ch]) return;
+                g.fillStyle = PAL[ch];
+                g.fillRect((flip ? w - 1 - x : x) * PX, y * PX, PX, PX);
+            }));
+            return c.toDataURL();
+        }
+
+        const rows = LEGS.map((l) => BASE.concat(l));
+        const imgs = {
+            right: rows.map((r) => sprite(r, false)),
+            left:  rows.map((r) => sprite(r, true))
+        };
+        const CW = 16 * PX / dpr, CH = rows[0].length * PX / dpr;
+
+        const cat = document.createElement('img');
+        cat.src = imgs.right[0];
+        cat.alt = '';
+        cat.setAttribute('aria-hidden', 'true');
+        cat.style.cssText = `position:fixed;left:0;top:0;width:${CW}px;height:${CH}px;` +
+            'image-rendering:pixelated;pointer-events:none;z-index:2147483000;display:none;';
+        document.body.appendChild(cat);
+
+        let x = 0, y = 0, mx = null, my = null, last = null, stepT = 0, step = 0, dir = 'right', shown = false;
+        const snap = (v) => Math.round(v * dpr) / dpr;
+
+        document.addEventListener('mousemove', (e) => {
+            mx = e.clientX; my = e.clientY;
+            if (!shown) {
+                shown = true;
+                x = Math.max(40, mx - 180);
+                y = Math.min(window.innerHeight - 40, my + 90);
+                cat.style.display = 'block';
+            }
+        });
+
+        function loop(t) {
+            requestAnimationFrame(loop);
+            if (mx === null) return;
+            if (last === null) last = t;
+            const dt = Math.min((t - last) / 1000, 0.05);
+            last = t;
+
+            const dx = mx - x, dy = my - y;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist > STOP_DIST) {
+                const move = Math.min(SPEED * dt, dist - STOP_DIST);
+                x += dx / dist * move;
+                y += dy / dist * move;
+                stepT += dt * 1000;
+                if (stepT >= STEP_MS) { stepT = 0; step ^= 1; }
+                if (Math.abs(dx) > 6) dir = dx < 0 ? 'left' : 'right';
+            } else {
+                step = 0;
+            }
+            cat.src = imgs[dir][step];
+            cat.style.transform = `translate(${snap(x - CW / 2)}px, ${snap(y - CH / 2)}px)`;
+        }
+        requestAnimationFrame(loop);
+    })();
+    </script>
+        <script>
+    /* Text reveal + hover pop-up (color change) */
+    (function () {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const st = document.createElement('style');
+        st.textContent = `
+            .hero{--pop:#f77d20}
+            #features-section{--pop:#d2612b}
+            .steps{--pop:#a3401a}
+
+            .tw{display:inline-block;overflow:hidden;vertical-align:top;padding:.12em 0 .16em;margin:-.12em 0 -.16em}
+            .tw>span{display:inline-block;will-change:transform}
+            .is-revealed .tw{overflow:visible}
+            .is-revealed .tw>span{transition:transform .35s cubic-bezier(.34,1.56,.64,1),color .25s ease,text-shadow .25s ease}
+            .is-revealed .tw:hover>span{
+                transform:translateY(-7px) scale(1.14);
+                color:var(--pop) !important;
+                text-shadow:0 10px 15px rgba(0,0,0,.22);
+            }
+
+            .hero-pre,.hero-p,.pill,.feature-tag,.feature-entry p,.step-info p,.footer-copy p{
+                transition:transform .35s cubic-bezier(.34,1.56,.64,1),color .25s ease;
+            }
+            .hero-pre,.hero-p,.step-info p,.footer-copy p{transform-origin:left center}
+            .feature-entry p,.feature-tag,#features-section .pill{transform-origin:right center}
+            .steps .pill{transform-origin:center}
+            .hero-pre:hover,.hero-p:hover,.pill:hover,.feature-tag:hover,.step-info p:hover,.footer-copy p:hover{
+                transform:translateY(-5px) scale(1.06) !important;
+                color:var(--pop) !important;
+            }
+            .feature-entry p:hover{
+                transform:translateX(-10px) translateY(-5px) scale(1.05) !important;
+                color:var(--pop) !important;
+            }
+        `;
+        document.head.appendChild(st);
+
+        if (!window.gsap) return;
+        gsap.registerPlugin(ScrollTrigger);
+
+        function split(el) {
+            const label = el.textContent.replace(/\s+/g, ' ').trim();
+            const lines = el.innerHTML.split(/<br\s*\/?>/i);
+            el.setAttribute('aria-label', label);
+            el.innerHTML = lines.map((l) =>
+                l.trim().split(/\s+/).map((w) =>
+                    `<span class="tw" aria-hidden="true"><span>${w}</span></span>`
+                ).join(' ')
+            ).join('<br>');
+            return el.querySelectorAll('.tw > span');
+        }
+
+        function reveal(el, extra) {
+            const words = split(el);
+            gsap.from(words, Object.assign({
+                yPercent: 115,
+                duration: 0.9,
+                ease: 'power4.out',
+                stagger: 0.07,
+                onComplete: () => {
+                    gsap.set(words, { clearProps: 'transform' });
+                    el.classList.add('is-revealed');
+                }
+            }, extra));
+        }
+
+        const h1 = document.querySelector('.hero h1');
+        if (h1) reveal(h1, { duration: 1, ease: 'power4.out', stagger: 0.09, delay: 0.3 });
+
+        document.querySelectorAll('#features-section h2, .steps h2, .feature-entry h3, .step-info h4').forEach((el) => {
+            reveal(el, { scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
+        });
+    })();
+    </script>
+        <script>
+    /* Modal (login + create account) text animation */
+    (function () {
+        if (!window.gsap || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const st = document.createElement('style');
+        st.textContent = `
+            .auth-modal{--pop:#ffa974}
+
+            .tw{display:inline-block;overflow:hidden;vertical-align:top;padding:.12em 0 .16em;margin:-.12em 0 -.16em}
+            .tw>span{display:inline-block;will-change:transform}
+            .is-revealed .tw{overflow:visible}
+            .is-revealed .tw>span{transition:transform .35s cubic-bezier(.34,1.56,.64,1),color .25s ease,text-shadow .25s ease}
+            .is-revealed .tw:hover>span{
+                transform:translateY(-7px) scale(1.14);
+                color:var(--pop) !important;
+                text-shadow:0 10px 24px rgba(0,0,0,.35);
+            }
+
+            .auth-dialog .pill,
+            .auth-dialog p,
+            .benefit strong,
+            .benefit small{
+                transition:transform .35s cubic-bezier(.34,1.56,.64,1),color .25s ease;
+            }
+            .benefit small{display:inline-block}
+            .create-intro .pill,.create-intro p,.benefit strong,.benefit small{transform-origin:left center}
+            .login-dialog > p,.create-form-panel > p,.auth-switch{transform-origin:center}
+
+            .auth-dialog .pill:hover,
+            .auth-dialog p:hover,
+            .benefit strong:hover,
+            .benefit small:hover{
+                transform:translateY(-5px) scale(1.06) !important;
+                color:var(--pop) !important;
+            }
+        `;
+        document.head.appendChild(st);
+
+        // text ko words me todta hai (span/color waise hi rehta hai)
+        function split(el) {
+            el.setAttribute('aria-label', el.textContent.replace(/\s+/g, ' ').trim());
+            const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            nodes.forEach((n) => {
+                if (!n.textContent.trim()) return;
+                const frag = document.createDocumentFragment();
+                n.textContent.split(/(\s+)/).forEach((part) => {
+                    if (!part) return;
+                    if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+                    const outer = document.createElement('span');
+                    outer.className = 'tw';
+                    outer.setAttribute('aria-hidden', 'true');
+                    const inner = document.createElement('span');
+                    inner.textContent = part;
+                    outer.appendChild(inner);
+                    frag.appendChild(outer);
+                });
+                n.replaceWith(frag);
+            });
+        }
+
+        const heads = document.querySelectorAll('#loginModalTitle, .create-intro h2, .create-form-panel h3');
+        heads.forEach(split);
+
+        function play(modal) {
+            modal.querySelectorAll('#loginModalTitle, .create-intro h2, .create-form-panel h3').forEach((h) => {
+                const words = h.querySelectorAll('.tw > span');
+                h.classList.remove('is-revealed');
+                gsap.fromTo(words, { yPercent: 115 }, {
+                    yPercent: 0, duration: 0.9, ease: 'power4.out', stagger: 0.07, delay: 0.15,
+                    onComplete: () => { gsap.set(words, { clearProps: 'transform' }); h.classList.add('is-revealed'); }
+                });
+            });
+
+            const items = modal.querySelectorAll(
+                '.pill, .login-brand-mark, .create-intro-brand, .create-intro p, .login-dialog > p, ' +
+                '.create-form-panel > p, .benefit, .auth-form > *, .login-divider, .social-login, .auth-switch'
+            );
+            gsap.fromTo(items, { opacity: 0, y: 22 }, {
+                opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.05, delay: 0.25,
+                clearProps: 'transform,opacity'
+            });
+        }
+
+        // modal jab bhi khule (Start Your Journey / Get Started / Login / Create account)
+        document.querySelectorAll('.auth-modal').forEach((modal) => {
+            new MutationObserver(() => {
+                if (modal.classList.contains('is-open')) play(modal);
+            }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+        });
+    })();
     </script>
 </body>
 </html>

@@ -239,9 +239,8 @@
   const configuredBase = global.PAWAI_API_BASE_URL;
   const isHttpPage = global.location.protocol === "http:" || global.location.protocol === "https:";
   const isLocalDevFrontend =
-    isHttpPage &&
-    (global.location.hostname === "localhost" || global.location.hostname === "127.0.0.1") &&
-    global.location.port !== "8080";
+  isHttpPage &&
+  ["5500", "5501"].includes(global.location.port);
   const API_BASE_URL = configuredBase !== undefined
     ? String(configuredBase).replace(/\/$/, "")
     // Keep localhost and 127.0.0.1 aligned. They are different sites for
@@ -249,8 +248,8 @@
     // API would make the browser omit the HttpOnly session on /auth/me.
     : (isLocalDevFrontend
       ? `http://${global.location.hostname}:8000`
-      : (isHttpPage ? global.location.origin : "http://localhost:8000"));
-
+      : `http://${global.location.hostname}:8000`);
+     
   /**
    * Error thrown for any non-2xx response or network failure.
    * - status 0            -> network/server unreachable (fetch itself threw)
@@ -497,7 +496,7 @@ analyzeMedia(mediaId) {
    * succeeds (a session that's already gone server-side should still send
    * the user back to the login screen).
    */
-  function bindLogout(selectorOrElement, { loginPage = "02-login.html" } = {}) {
+  function bindLogout(selectorOrElement, { loginPage = "landing-page.html" } = {})  {
     const element =
       typeof selectorOrElement === "string"
         ? document.querySelector(selectorOrElement)

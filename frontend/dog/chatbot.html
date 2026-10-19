@@ -961,17 +961,24 @@
         // ----------------------------------------------------------------
         // API base URL — mirrors api.js logic
         // ----------------------------------------------------------------
-        function getApiBase() {
-            if (window.PAWAI_API_BASE_URL != null) {
-                return String(window.PAWAI_API_BASE_URL).replace(/\/$/, "");
+        // function getApiBase() {
+        //     if (window.PAWAI_API_BASE_URL != null) {
+        //         return String(window.PAWAI_API_BASE_URL).replace(/\/$/, "");
+        //     }
+        //     const isLocalDev =
+        //         (location.hostname === "localhost" || location.hostname === "127.0.0.1") &&
+        //         location.port !== "8080";
+        //     return isLocalDev
+        //         ? "http://" + location.hostname + ":8000"
+        //         : location.origin;
+        // }
+            function getApiBase() {
+                if (window.PAWAI_API_BASE_URL != null) {
+                    return String(window.PAWAI_API_BASE_URL).replace(/\/$/, "");
+                }
+
+                return "http://" + location.hostname + ":8000";
             }
-            const isLocalDev =
-                (location.hostname === "localhost" || location.hostname === "127.0.0.1") &&
-                location.port !== "8080";
-            return isLocalDev
-                ? "http://" + location.hostname + ":8000"
-                : location.origin;
-        }
 
         // ----------------------------------------------------------------
         // Backend API calls — all with credentials so the session cookie
